@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport">
+    <title>Job Portal</title>
+    <link rel="stylesheet" th:href="@{assets/bootstrap/css/bootstrap.min.css}">
+    <link href="https://fonts.googleapis.com/css?family=Rubik&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,900" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{assets/fonts/fontawesome-all.min.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Filter.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Login-Form-Clean.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Login-screen.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Navigation-with-Button.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Search-Input-Responsive-with-Icon.css}">
+    <link rel="stylesheet" th:href="@{assets/css/styles.css}">
+</head>
+
+<body style="font-family: Rubik, sans-serif;background: #d6e0f0;">
+<nav class="navbar navbar-light navbar-expand-md navigation-clean-button" style="background: #d6e0f0;">
+    <div class="container">
+        <a class="navbar-brand d-flex" th:href="@{index}">
+            <i class="fab fa-confluence fs-2"></i>
+            <span class="ms-2">JobLab.</span>
+        </a>
+        <button class="navbar-toggler" data-bs-target="#navcol-1" data-bs-toggle="collapse"><span
+                class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"></li>
+                <li class="nav-item"></li>
+            </ul>
+            <span class="navbar-text actions" th:if="${user == null}">
+                <a class="login" th:href="@{login}">Log In</a>
+                <a class="btn btn-light action-button" role="button" style="background: #ee9919;" th:href="@{signup}">Sign Up</a>
+            </span>
+            <div class="dropdown" th:if="${user != null}">
+                <button aria-expanded="false" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="username"
+                        th:text="${user.email}"
+                        type="button">
+                    email@domain.com
+                </button>
+                <ul aria-labelledby="username" class="dropdown-menu">
+                    <li><a class="dropdown-item" th:href="@{profile}">Profile</a></li>
+                    <li><a class="dropdown-item" th:href="@{qualifications}">Qualifications</a></li>
+                    <li><a class="dropdown-item" th:href="@{experience}">Experience</a></li>
+                    <li><a class="dropdown-item" th:href="@{files}">Files</a></li>
+                    <hr>
+                    <li><a class="dropdown-item" th:href="@{applications}">Applications</a></li>
+                    <hr>
+                    <li><a class="dropdown-item" th:href="@{logout}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="row p-3 mb-5" style="background: #fff9f4;border-radius: 12px;">
+        <div th:if="${!success.isEmpty()}">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+        </div>
+
+        <div th:if="${!error.isEmpty()}">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+        </div>
+
+        <h2 class="" th:if="${documents.isEmpty()}">You have no files uploaded. 	&#x1F625;</h2>
+        <div class=" pt-5 pt-0 pb-3" th:if="${!documents.isEmpty()}">
+            <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Uploaded Files</h5>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Size</th>
+                    <th scope="col">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="doc : ${documents}">
+                    <th th:text="${doc.id}">1</th>
+                    <td th:text="${doc.title}">CV</td>
+                    <td th:text="${doc.name}">cv.pdf</td>
+                    <td th:text="${doc.size}">30933 Bytes</td>
+                    <td>
+                        <div class="btn-group">
+                            <a aria-current="page" class="btn btn-outline-dark"
+                               th:href="@{download(id=${doc.id})}">Download</a>
+                            <a aria-current="page" class="btn btn-outline-danger"
+                               th:href="@{files(id=${doc.id})}">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <form class="pt-3" enctype="multipart/form-data" method="post" th:object="${upload}">
+            <div class=" p-2">
+                <div class="row g-3 px-md-3">
+                    <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Upload a File</h5>
+                    <div class="mb-3 m-auto border rounded py-3 px-4 bg-white">
+
+                        <label class="form-label fs-5" for="title">Select Document Title</label>
+                        <select class="form-control form-select mb-5" id="title" required th:field="*{title}">
+                            <option disabled selected value="">Open this select menu</option>
+                            <option value="CV">CV</option>
+                            <option value="ID Copy">ID Copy</option>
+                            <option value="Academic Transcript">Academic Transcript</option>
+                            <option value="Matric Results">Matric Results</option>
+                            <option value="Recommendation Letter">Recommendation Letter</option>
+                            <option value="Clearance Letter">Clearance Letter</option>
+                        </select>
+
+                        <label class="form-label fs-5" for="file">Upload a file</label>
+                        <input class="form-control" id="file" name="file" required  th:field="*{file}" type="file" />
+                        <p class="mt-1 text-danger">Maximum File Size: 4MB; Accepted file formats: pdf & docx</p>
+
+                        <div class="text-center">
+                            <button class="btn btn-pagination w-50" type="submit">Upload</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div th:if="${!documents.isEmpty()}">
+            <a aria-current="page" class="btn btn-outline-danger m-auto w-25" th:href="@{files(id=all)}">Delete All Files</a>
+        </div>
+    </div>
+</div>
+<script th:src="@{assets/bootstrap/js/bootstrap.min.js}"></script>
+<script th:src="@{assets/js/main.js}"></script>
+</body>
+
+</html>

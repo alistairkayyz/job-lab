@@ -1,0 +1,43 @@
+header {
+  height: 50vh;
+}
+
+.btn-search {
+  outline: none;
+  border: none;
+}
+
+.btn-job {
+  background-color: #ff7c1f;
+  color: #ffffff;
+  border-radius: 1rem;
+  transition: all .2s ease-in-out;
+}
+
+.btn-job:hover {
+  background-color: #180b02;
+  color: white;
+  transform: scale(1.1);
+}
+
+.btn-pagination {
+  background-color: #ff7c1f;
+  color: #ffffff;
+  transition: all .2s ease-in-out;
+}
+
+.btn-pagination:hover {
+  background-color: #180b02;
+  color: white;
+  transform: scale(1.03);
+}
+
+.line-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: justify;
+  text-justify: inter-word;
+}
+

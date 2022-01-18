@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Job Portal</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Rubik&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,900">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/css/Filter.css">
+    <link rel="stylesheet" href="assets/css/Login-Form-Clean.css">
+    <link rel="stylesheet" href="assets/css/Login-screen.css">
+    <link rel="stylesheet" href="assets/css/Navigation-with-Button.css">
+    <link rel="stylesheet" href="assets/css/Search-Input-Responsive-with-Icon.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body style="font-family: Rubik, sans-serif;background: #d6e0f0;">
+    <nav class="navbar navbar-light navbar-expand-md navigation-clean-button" style="background: #d6e0f0;">
+        <div class="container"><a class="navbar-brand d-flex" href="index.html"><i class="fab fa-confluence fs-2"></i><span class="ms-2">JobLab.</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link active" href="job-post.html">New Job</a></li>
+                    <li class="nav-item"><a class="nav-link" href="view-jobs.html">View Jobs</a></li>
+                    <li class="nav-item"><a class="nav-link" href="job-activity.html">Job Activity</a></li>
+                </ul><span class="navbar-text actions"> <a class="login" href="login-staff.html">Log In</a><a class="btn btn-light action-button" role="button" href="signup.html" style="background: #ee9919;">Sign Up</a></span>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <header class="ms-5 h-100 mb-4">
+            <h2>Post New Job</h2>
+        </header><div class="row p-3 mb-5" style="background: #fff9f4;border-radius: 12px;">
+    <form class="" action="" method="get">
+        <div class="pt-3">
+            <div>
+                <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Job Post Details</h5>
+            </div>
+            <div class=" pt-3 pt-0 pb-3">
+                <div class="row g-3 px-md-3">
+                    <div class="form-floating col-sm-6 col-md-4">
+                        <input type="text" class="form-control" id="job-title" placeholder="Ex. IT Internship" required>
+                        <label for="job-title">Job Title</label>
+                    </div>
+                    <div class="form-floating col-12">
+                        <textarea id="purpose" class="form-control" placeholder="Purpose" maxlength="5000"
+                            style="height: 100px;" required></textarea>
+                        <label for="purpose">Purpose</label>
+                        <p class="text-danger mt-1">Characters left: 5000</p>
+                    </div>
+                    <div class="form-floating col-12">
+                        <textarea id="description" class="form-control" placeholder="Description" maxlength="5000"
+                            style="height: 100px;" required></textarea>
+                        <label for="description">Description</label>
+                        <p class="text-danger mt-1">Characters left: 5000</p>
+                    </div>
+                    <div class="form-floating col-12">
+                        <textarea id="qualifications" class="form-control" placeholder="Qualifications" maxlength="1500"
+                            style="height: 100px;" required></textarea>
+                        <label for="qualifications">Qualifications</label>
+                        <p class="text-muted mt-1">Enter qualifications separated by comma(,). Ex. Maths, IT, Law,
+                            Accounting...</p>
+                        <p class="text-danger">Characters left: 1500</p>
+                    </div>
+
+                    <div class="form-floating col-12">
+                        <textarea id="requirements" class="form-control" placeholder="Requirements" maxlength="5000"
+                            style="height: 100px;" required></textarea>
+                        <label for="requirements">Requirements</label>
+                        <p class="text-muted mt-1">Enter requirements separated by comma(,). Ex. HTML, CSS, JavaScript,
+                            Spring framework...</p>
+                        <p class="text-danger">Characters left: 5000</p>
+                    </div>
+
+                    <div class="form-floating col-12">
+                        <textarea id="responsibilities" class="form-control" placeholder="Responsibilities"
+                            maxlength="5000" style="height: 100px;" required></textarea>
+                        <label for="responsibilities">Responsibilities</label>
+                        <p class="text-muted mt-1">Enter responsibilities separated by comma(,). Ex. Call center, Adding
+                            new users...</p>
+                        <p class="text-danger">Characters left: 5000</p>
+                    </div>
+
+                    <div class="form-floating col-12">
+                        <textarea id="location" class="form-control" placeholder="Location" maxlength="255"
+                            style="height: 100px;" required></textarea>
+                        <label for="location">Location</label>
+                        <p class="text-muted mt-1">Enter locations separated by comma(,). Ex. Pretoria, Johannesburg,
+                            Durban...</p>
+                        <p class="text-danger">Characters left: 255</p>
+                    </div>
+
+                    <div class="form-floating col-sm-6 col-md-4">
+                        <input type="datetime-local" class="form-control" id="closing-date" placeholder="Closing Date" required>
+                        <label for="closing-date">Closing Date</label>
+                    </div>
+
+                    <div class="col-12">
+                        <button class="btn btn-pagination" type="submit">Save and Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+    </div>
+    <script th:src="@{assets/bootstrap/js/bootstrap.min.js}"></script>
+    <script th:src="@{assets/js/main.js}"></script>
+</body>
+
+</html>

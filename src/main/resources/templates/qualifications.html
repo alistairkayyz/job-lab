@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport">
+    <title>Job Portal</title>
+    <link rel="stylesheet" th:href="@{assets/bootstrap/css/bootstrap.min.css}">
+    <link href="https://fonts.googleapis.com/css?family=Rubik&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,900" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{assets/fonts/fontawesome-all.min.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Filter.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Login-Form-Clean.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Login-screen.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Navigation-with-Button.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Search-Input-Responsive-with-Icon.css}">
+    <link rel="stylesheet" th:href="@{assets/css/styles.css}">
+</head>
+
+<body style="font-family: Rubik, sans-serif;background: #d6e0f0;">
+<nav class="navbar navbar-light navbar-expand-md navigation-clean-button" style="background: #d6e0f0;">
+    <div class="container">
+        <a class="navbar-brand d-flex" th:href="@{index}">
+            <i class="fab fa-confluence fs-2"></i>
+            <span class="ms-2">JobLab.</span>
+        </a>
+        <button class="navbar-toggler" data-bs-target="#navcol-1" data-bs-toggle="collapse"><span
+                class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"></li>
+                <li class="nav-item"></li>
+            </ul>
+            <span class="navbar-text actions" th:if="${user == null}">
+                <a class="login" th:href="@{login}">Log In</a>
+                <a class="btn btn-light action-button" role="button" style="background: #ee9919;" th:href="@{signup}">Sign Up</a>
+            </span>
+            <div class="dropdown" th:if="${user != null}">
+                <button aria-expanded="false" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="username"
+                        th:text="${user.email}"
+                        type="button">
+                    email@domain.com
+                </button>
+                <ul aria-labelledby="username" class="dropdown-menu">
+                    <li><a class="dropdown-item" th:href="@{profile}">Profile</a></li>
+                    <li><a class="dropdown-item" th:href="@{qualifications}">Qualifications</a></li>
+                    <li><a class="dropdown-item" th:href="@{experience}">Experience</a></li>
+                    <li><a class="dropdown-item" th:href="@{files}">Files</a></li>
+                    <hr>
+                    <li><a class="dropdown-item" th:href="@{applications}">Applications</a></li>
+                    <hr>
+                    <li><a class="dropdown-item" th:href="@{logout}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="row p-3 mb-5" style="background: #fff9f4;border-radius: 12px;">
+        <div th:if="${!success.isEmpty()}">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+        </div>
+
+        <div th:if="${!error.isEmpty()}">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+        </div>
+
+        <h2 class="" th:if="${qualificationsList.isEmpty()}">No qualifications found. 	&#x1F625;</h2>
+
+        <div class="accordion accordion-flush" id="accordionFlushExample" th:if="${!qualificationsList.isEmpty()}">
+            <div class="accordion-item border border-primary" th:each="item : ${qualificationsList}">
+                <h2 class="accordion-header" th:id="${item.id}">
+                    <button aria-controls="flush-collapseOne" aria-expanded="false" class="accordion-button collapsed"
+                            data-bs-target="#flush-collapseOne" data-bs-toggle="collapse" type="button">
+                        <span th:text="${item.qualificationName}"></span>
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample" id="flush-collapseOne"
+                     th:aria-labelledby="${item.id}">
+                    <div class="accordion-body">
+                        <div class="row my-1 py-2" style="background: #f5f5f5;">
+                            <div class="col-sm-3 fw-bold">Institution Name:</div>
+                            <div class="col" th:text="${item.institutionName}">Tshwane University of Technology</div>
+                        </div>
+                        <div class="row my-1 py-2" style="background: #f5f5f5;">
+                            <div class="col-sm-3 fw-bold">Qualification:</div>
+                            <div class="col" th:text="${item.qualificationName}">BSc Computer Science</div>
+                        </div>
+                        <div class="row my-1 py-2" style="background: #f5f5f5;">
+                            <div class="col-sm-3 fw-bold">Major:</div>
+                            <div class="col" th:text="${item.major}">Software Engineering</div>
+                        </div>
+                        <div class="row my-1 py-2" style="background: #f5f5f5;">
+                            <div class="col-sm-3 fw-bold">Start Date:</div>
+                            <div class="col" th:text="${item.startDate}">2019-01-20</div>
+                        </div>
+                        <div class="row my-1 py-2" style="background: #f5f5f5;">
+                            <div class="col-sm-3 fw-bold">Completion Date:</div>
+                            <div class="col" th:text="${item.completionDate}">2021-12-31</div>
+                        </div>
+                        <div class="row my-1 py-2" style="background: #f5f5f5;">
+                            <div class="col-sm-3 fw-bold">Aggregate:</div>
+                            <div class="col" th:text="${item.aggregate}">65.7%</div>
+                        </div>
+                        <div class="row">
+                            <div class="col ">
+                                <a aria-current="page" class="btn btn-primary" th:href="@{qualifications(action='edit',id=${item.id})}">Edit</a>
+                                <a aria-current="page" class="btn btn-outline-danger" th:href="@{qualifications(action='delete',id=${item.id})}">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row p-3 mb-5" style="background: #fff9f4;border-radius: 12px;" th:if="${show} == true">
+        <form class="pt-3" method="post" th:object="${qualification}">
+            <div>
+                <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Qualifications Details</h5>
+            </div>
+            <div class=" pt-3 pt-0 pb-5">
+                <div class="row g-3 px-md-3">
+                    <div class="col-sm-6 col-md-4">
+                        <label class="form-label" for="id">ID</label><input
+                            class="form-control" disabled id="id"
+                            name="institution"
+                            th:field="*{id}" type="text"/>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <label class="form-label" for="institution">Institution</label><input
+                            class="form-control" id="institution" name="institution"
+                            placeholder="Ex. Tshwane University of Technology" required
+                            th:field="*{institutionName}"
+                            type="text"/>
+                    </div>
+                    <div class="col-sm-6 col-md-4"><label class="form-label"
+                                                          for="qualification">Qualification</label><input
+                            class="form-control" id="qualification" name="qualification"
+                            placeholder="Ex. BSc in Computer Science"
+                            required th:field="*{qualificationName}" type="text"/>
+                    </div>
+                    <div class="col-sm-6 col-md-4"><label class="form-label" for="major">Major</label><input
+                            class="form-control"
+                            id="major" name="major" placeholder="Ex. System Development" required
+                            th:field="*{major}"
+                            type="text"/></div>
+                    <div class="col-sm-6 col-md-4"><label class="form-label" for="start-date">Start
+                        Date</label><input
+                            class="form-control" id="start-date" name="start_date" required th:field="*{startDate}"
+                            type="date"/>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <label class="form-label" for="completion-date">Completion Date</label>
+                        <input class="form-control" id="completion-date" name="completion_date"
+                               required
+                               th:field="*{completionDate}" type="date"/></div>
+                    <div class="col-sm-6 col-md-4"><label class="form-label"
+                                                          for="aggregate">Aggregate</label><input
+                            class="form-control" id="aggregate" name="aggregate" placeholder="Ex. 76"
+                            required th:field="*{aggregate}"
+                            type="number"/>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-pagination" type="submit">Save qualification</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script th:src="@{assets/bootstrap/js/bootstrap.min.js}"></script>
+<script th:src="@{assets/js/main.js}"></script>
+</body>
+
+</html>

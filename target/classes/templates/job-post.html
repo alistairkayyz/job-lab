@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport">
+    <title>Job Portal</title>
+    <link rel="stylesheet" th:href="@{assets/bootstrap/css/bootstrap.min.css}">
+    <link href="https://fonts.googleapis.com/css?family=Rubik&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,900" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{assets/fonts/fontawesome-all.min.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Filter.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Login-Form-Clean.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Login-screen.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Navigation-with-Button.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Search-Input-Responsive-with-Icon.css}">
+    <link rel="stylesheet" th:href="@{assets/css/styles.css}">
+</head>
+
+<body style="font-family: Rubik, sans-serif;background: #d6e0f0;">
+<nav class="navbar navbar-light navbar-expand-md navigation-clean-button" style="background: #d6e0f0;">
+    <div class="container"><a class="navbar-brand d-flex" th:href="@{index}"><i class="fab fa-confluence fs-2"></i><span
+            class="ms-2">JobLab.</span></a>
+        <button class="navbar-toggler" data-bs-target="#navcol-1" data-bs-toggle="collapse"><span
+                class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link active" th:href="@{job-post}">New Job</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{view-jobs}">View Jobs</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{job-activity}">Job Activity</a></li>
+            </ul>
+            <span th:if="${user == null}" class="navbar-text actions">
+<!--                    <a class="login" th:href="@{login-staff}">Log In</a>-->
+                    <a class="btn btn-light action-button" role="button" style="background: #ee9919;"
+                       th:href="@{login-staff}">Login</a>
+                </span>
+            <div th:if="${user != null}" class="dropdown">
+                <button th:text="${user.email}" class="btn btn-secondary dropdown-toggle" type="button" id="username"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    email@domain.com
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="username">
+                    <li><a class="dropdown-item" th:href="@{logout}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <header class="ms-5 h-100 mb-4">
+        <h2>Post New Job</h2>
+    </header>
+    <div class="row p-3 mb-5" style="background: #fff9f4;border-radius: 12px;">
+        <form th:action="@{job-post}" class="" method="post" th:object="${jobPost}">
+            <input th:type="hidden" th:name="id" th:field="*{id}">
+            <div class="pt-3">
+                <div>
+                    <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Job Post Details</h5>
+                </div>
+                <div class=" pt-3 pt-0 pb-3">
+                    <div class="form-floating col-12 mb-3">
+                        <input class="form-control" id="job-title" placeholder="Ex. IT Internship" required
+                               type="text" th:field="*{title}">
+                        <label for="job-title">Job Title</label>
+                    </div>
+                    <div class="form-floating col-12 mb-3">
+                        <input class="form-control" id="job-type" placeholder="Ex. Fixed-term" required
+                               type="text" th:field="*{type}">
+                        <label for="job-type">Job Type</label>
+                    </div>
+
+                    <div class="form-floating col-12">
+                        <textarea class="form-control" id="purpose" maxlength="5000" placeholder="Purpose"
+                                  required style="height: 100px;" th:field="*{purpose}"></textarea>
+                        <label for="purpose">Purpose</label>
+                        <p class="text-danger mt-1">Characters left: 5000</p>
+                    </div>
+                    <div class="form-floating col-12">
+                        <textarea class="form-control" id="description" maxlength="5000" placeholder="Description"
+                                  required style="height: 100px;" th:field="*{description}"></textarea>
+                        <label for="description">Description</label>
+                        <p class="text-danger mt-1">Characters left: 5000</p>
+                    </div>
+                    <div class="form-floating col-12">
+                        <textarea class="form-control" id="qualifications" maxlength="1500" placeholder="Qualifications"
+                                  required style="height: 100px;" th:field="*{qualification}"></textarea>
+                        <label for="qualifications">Qualifications</label>
+                        <p class="text-muted mt-1">Enter qualifications separated by comma(,). Ex. Maths, IT, Law,
+                            Accounting...</p>
+                        <p class="text-danger">Characters left: 1500</p>
+                    </div>
+
+                    <div class="form-floating col-12">
+                        <textarea class="form-control" id="requirements" maxlength="5000" placeholder="Requirements"
+                                  required style="height: 100px;" th:field="*{requirements}"></textarea>
+                        <label for="requirements">Requirements</label>
+                        <p class="text-muted mt-1">Enter requirements separated by comma(,). Ex. HTML, CSS,
+                            JavaScript,
+                            Spring framework...</p>
+                        <p class="text-danger">Characters left: 5000</p>
+                    </div>
+
+                    <div class="form-floating col-12">
+                        <textarea class="form-control" id="responsibilities" maxlength="5000"
+                                  placeholder="Responsibilities" required style="height: 100px;"
+                                  th:field="*{responsibilities}"></textarea>
+                        <label for="responsibilities">Responsibilities</label>
+                        <p class="text-muted mt-1">Enter responsibilities separated by comma(,). Ex. Call center,
+                            Adding
+                            new users...</p>
+                        <p class="text-danger">Characters left: 5000</p>
+                    </div>
+
+                    <div class="form-floating col-12">
+                        <textarea class="form-control" id="location" maxlength="255" placeholder="Location"
+                                  required style="height: 100px;" th:field="*{location}"></textarea>
+                        <label for="location">Location</label>
+                        <p class="text-muted mt-1">Enter locations separated by comma(,). Ex. Pretoria,
+                            Johannesburg,
+                            Durban...</p>
+                        <p class="text-danger">Characters left: 255</p>
+                    </div>
+
+                    <div class="form-floating col-sm-6 col-md-4">
+                        <input class="form-control" id="closing-date" placeholder="Closing Date"
+                               required type="datetime-local" th:field="*{timestamp}">
+                        <label for="closing-date">Closing Date</label>
+                    </div>
+
+                    <div class="col-12">
+                        <button class="btn btn-pagination" type="submit">Post</button>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+</div>
+<script th:src="@{assets/bootstrap/js/bootstrap.min.js}"></script>
+<script th:src="@{assets/js/main.js}"></script>
+</body>
+
+</html>

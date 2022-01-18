@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport">
+    <title>Job Portal</title>
+    <link rel="stylesheet" th:href="@{assets/bootstrap/css/bootstrap.min.css}">
+    <link href="https://fonts.googleapis.com/css?family=Rubik&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,900" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{assets/fonts/fontawesome-all.min.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Filter.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Login-Form-Clean.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Login-screen.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Navigation-with-Button.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Search-Input-Responsive-with-Icon.css}">
+    <link rel="stylesheet" th:href="@{assets/css/styles.css}">
+</head>
+
+<body style="font-family: Rubik, sans-serif;background: #d6e0f0;">
+<nav class="navbar navbar-light navbar-expand-md navigation-clean-button" style="background: #d6e0f0;">
+    <div class="container">
+        <a class="navbar-brand d-flex" th:href="@{index}">
+            <i class="fab fa-confluence fs-2"></i>
+            <span class="ms-2">JobLab.</span>
+        </a>
+        <button class="navbar-toggler" data-bs-target="#navcol-1" data-bs-toggle="collapse"><span
+                class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"></li>
+                <li class="nav-item"></li>
+            </ul>
+            <span class="navbar-text actions" th:if="${user == null}">
+                <a class="login" th:href="@{login}">Log In</a>
+                <a class="btn btn-light action-button" role="button" style="background: #ee9919;" th:href="@{signup}">Sign Up</a>
+            </span>
+            <div class="dropdown" th:if="${user != null}">
+                <button aria-expanded="false" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="username"
+                        th:text="${user.email}"
+                        type="button">
+                    email@domain.com
+                </button>
+                <ul aria-labelledby="username" class="dropdown-menu">
+                    <li><a class="dropdown-item" th:href="@{profile}">Profile</a></li>
+                    <li><a class="dropdown-item" th:href="@{qualifications}">Qualifications</a></li>
+                    <li><a class="dropdown-item" th:href="@{experience}">Experience</a></li>
+                    <li><a class="dropdown-item" th:href="@{files}">Files</a></li>
+                    <hr>
+                    <li><a class="dropdown-item" th:href="@{applications}">Applications</a></li>
+                    <hr>
+                    <li><a class="dropdown-item" th:href="@{logout}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="container">
+
+    <div class="row p-3 mb-5" style="background: #fff9f4;border-radius: 12px;">
+        <div th:if="${!success.isEmpty()}">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+        </div>
+
+        <div th:if="${!error.isEmpty()}">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+        </div>
+
+        <h2 class="" th:if="${experienceList.isEmpty()}">No experience found. 	&#x1F625;</h2>
+        <div class="accordion accordion-flush" id="accordionFlushExample" th:if="${!experienceList.isEmpty()}">
+            <div class="accordion-item border border-primary" th:each="item : ${experienceList}">
+                <h2 class="accordion-header" id="flush-headingOne">
+                    <button aria-controls="flush-collapseOne" aria-expanded="false" class="accordion-button collapsed"
+                            data-bs-target="#flush-collapseOne" data-bs-toggle="collapse" type="button">
+                        <span th:text="${item.jobTitle}"></span>
+                    </button>
+                </h2>
+                <div aria-labelledby="flush-headingOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample"
+                     id="flush-collapseOne">
+                    <div class="accordion-body">
+                        <div class="row my-1 py-2" style="background: #f5f5f5;">
+                            <div class="col-sm-3 fw-bold">Is current job?:</div>
+                            <div class="col" th:text="${item.isCurrent_job}">Yes</div>
+                        </div>
+                        <div class="row my-1 py-2" style="background: #f5f5f5;">
+                            <div class="col-sm-3 fw-bold">Job Title:</div>
+                            <div class="col" th:text="${item.jobTitle}">IOS Developer</div>
+                        </div>
+                        <div class="row my-1 py-2" style="background: #f5f5f5;">
+                            <div class="col-sm-3 fw-bold">Company Name:</div>
+                            <div class="col" th:text="${item.companyName}">Facebook</div>
+                        </div>
+                        <div class="row my-1 py-2" style="background: #f5f5f5;">
+                            <div class="col-sm-3 fw-bold">Description:</div>
+                            <div class="col"  th:text="${item.description}">
+                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit quis impedit eius!
+                                Sed quod assumenda aperiam sint esse aut recusandae magnam repellendus quas
+                                accusamus ullam optio, beatae rerum ipsum veritatis laborum impedit ab voluptas
+                                hic autem tempora voluptates? Nam alias sequi vero quibusdam necessitatibus natus
+                                debitis modi unde. Sunt, ipsa! Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                                Sint, error labore ipsum beatae dolorem minus quos odit ipsam similique. Vel autem
+                                accusamus blanditiis quos unde temporibus maxime iure, fuga obcaecati, sint quasi enim.
+                            </div>
+                        </div>
+                        <div class="row my-1 py-2" style="background: #f5f5f5;">
+                            <div class="col-sm-3 fw-bold">Start Date:</div>
+                            <div class="col" th:text="${item.startDate}">2019-01-20</div>
+                        </div>
+                        <div class="row my-1 py-2" style="background: #f5f5f5;">
+                            <div class="col-sm-3 fw-bold">End Date:</div>
+                            <div class="col" th:text="${item.endDate}">2021-12-31</div>
+                        </div>
+                        <div class="row my-1 py-2" style="background: #f5f5f5;">
+                            <div class="col-sm-3 fw-bold">Notice:</div>
+                            <div class="col" th:text="${item.noticePeriod}">1 month</div>
+                        </div>
+                        <div class="row">
+                            <div class="col ">
+                                <a aria-current="page" class="btn btn-primary" th:href="@{experience(action='edit',id=${item.id})}">Edit</a>
+                                <a aria-current="page" class="btn btn-outline-danger" th:href="@{experience(action='delete',id=${item.id})}">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row p-3 mb-5" style="background: #fff9f4;border-radius: 12px;" th:if="${show} == true">
+        <form class="pt-3" method="post" th:object="${experience}">
+            <div>
+                <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Experience Details</h5>
+            </div>
+            <div class=" pt-3 pt-0 pb-5">
+                <div class="row g-3 px-md-3">
+                    <div class="col-sm-6 col-md-4">
+                        <label class="form-label" for="id">ID</label><input
+                            class="form-control" disabled id="id"
+                            name="institution"
+                            th:field="*{id}" type="text"/>
+                    </div>
+                    <div class="form-check col-12">
+                        <input class="form-check-input" id="current-job" th:field="*{current_job}" type="checkbox"/>
+                        <label class="form-check-label" for="current-job">
+                            Is current job?
+                        </label>
+                    </div>
+                    <div class="col-sm-6 col-md-4"><label class="form-label" for="job-title">Job
+                        Title</label><input
+                            class="form-control" id="job-title" name="job-title"
+                            placeholder="Ex. System Analyst"
+                            required th:field="*{jobTitle}" type="text"/></div>
+                    <div class="col-sm-6 col-md-4"><label class="form-label" for="company">Company
+                        Name</label><input
+                            class="form-control" id="company" name="company_name" placeholder="Ex. Amazon"
+                            required th:field="*{companyName}"
+                            type="text"/></div>
+                    <div class="form-floating col-12">
+                        <textarea class="form-control" id="description" maxlength="5000" style="height: 100px;" th:field="*{description}"></textarea>
+                        <label for="description">Description</label>
+                        <p class="text-danger mt-1">Characters left: 5000</p>
+                    </div>
+                    <div class="col-sm-6 col-md-4"><label class="form-label" for="start_date">Start
+                        Date</label>
+                        <input class="form-control" id="start_date" name="start_date" required th:field="*{startDate}" type="date"/>
+                    </div>
+                    <div class="col-sm-6 col-md-4"><label class="form-label" for="end-date">End
+                        Date</label><input
+                            class="form-control" id="end-date" name="end_date" required th:field="*{endDate}" type="date"/>
+                    </div>
+                    <div class="col-sm-6 col-md-4"><label class="form-label" for="notice">Notice
+                        Period</label>
+                        <select class="form-select" id="notice" required th:field="*{noticePeriod}">
+                            <option disabled selected value="default">Open this select menu</option>
+                            <option value="Immediately">Immediately</option>
+                            <option value="1 Week">1 Week</option>
+                            <option value="2 Weeks">2 Weeks</option>
+                            <option value="1 Month">1 Month</option>
+                            <option value="2 Months">2 Months</option>
+                            <option value="3 Months">3 Months</option>
+                            <option value="6 Months">6 Months</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-pagination" type="submit">Save experience</button>
+                    </div>
+                    <div class="col-12">
+                        <a class="btn btn-danger" th:href="@{experience(id=${experience.id})}">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script th:src="@{assets/bootstrap/js/bootstrap.min.js}"></script>
+<script th:src="@{assets/js/main.js}"></script>
+</body>
+
+</html>
