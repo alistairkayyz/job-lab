@@ -3,6 +3,8 @@ package com.dso34bt.jobportal.controllers;
 import com.dso34bt.jobportal.model.*;
 import com.dso34bt.jobportal.services.CandidateService;
 import com.dso34bt.jobportal.services.DocumentService;
+import com.dso34bt.jobportal.services.ExperienceService;
+import com.dso34bt.jobportal.services.QualificationService;
 import com.dso34bt.jobportal.utilities.Session;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,14 +26,22 @@ import java.util.Optional;
 public class FilesController {
     private final DocumentService documentService;
     private final CandidateService candidateService;
+    private final ExperienceService experienceService;
+    private final QualificationService qualificationService;
 
-    public FilesController(DocumentService documentService, CandidateService candidateService) {
+    public FilesController(DocumentService documentService,
+                           CandidateService candidateService,
+                           ExperienceService experienceService,
+                           QualificationService qualificationService) {
         this.documentService = documentService;
         this.candidateService = candidateService;
+        this.experienceService = experienceService;
+        this.qualificationService = qualificationService;
     }
 
     @GetMapping("files")
-    public String files(Model model, @RequestParam(value = "id", required = false) String id){
+    public String files(Model model, @RequestParam(value = "id", required = false) String id,
+                        @RequestParam(value = "action", required = false) String action){
         if (Session.getCandidateAccount() == null) {
             model.addAttribute("user", new CandidateAccount());
 
@@ -41,34 +51,39 @@ public class FilesController {
         List<Document> documents = new ArrayList<>();
 
         String success = "";
-        String error = "";
+        StringBuilder error = new StringBuilder();
 
-        if (id != null){
+        if (id != null && action != null){
 
-            // delete all files
-            if (id.equalsIgnoreCase("all")){
-                List<Document> documentList = documentService.getCandidateDocuments(account.getEmail());
+            // Generate CV
+            if (id.equalsIgnoreCase("cv") && action.equalsIgnoreCase("generate")){
+                List<String> list = new ArrayList<>();
+                if (!candidateService.candidateExists(account.getEmail()))
+                    list.add("PROFILE");
 
-                for (Document document : documentList){
-                    if (documentService.deleteByEntity(document)){
-                        error  ="ERROR: Failed to delete '" + document.getTitle() + "'";
-                        break;
-                    }
-                }
+                if (!qualificationService.existsByEmail(account.getEmail()))
+                    list.add("QUALIFICATION");
 
-                if (!documentService.existsByCandidateEmail(account.getEmail())){
-                    success = "Successfully deleted all files";
+                if (!experienceService.existsByCandidateEmail(account.getEmail()))
+                    list.add("EXPERIENCE");
+
+                if (list.isEmpty())
+                    success = "CV was successfully generated";
+                else{
+                    error = new StringBuilder("Please complete: ");
+                    for (String text : list)
+                        error.append("[ ").append(text).append(" ] ");
                 }
             }
 
             // delete the specified file
-            if (!id.equalsIgnoreCase("all")){
+            if (!id.equalsIgnoreCase("cv") && action.equalsIgnoreCase("delete")){
                 Document document = documentService.findById(Long.parseLong(id)).get();
 
                 if (documentService.deleteByEntity(document))
-                    error  ="ERROR: Failed to delete '" + document.getTitle() + "'";
-                else
                     success = "Successfully deleted '" + document.getTitle() + "'";
+                else
+                    error = new StringBuilder("ERROR: Failed to delete '" + document.getTitle() + "'");
             }
         }
 
@@ -77,7 +92,7 @@ public class FilesController {
             documents = documentService.getCandidateDocuments(account.getEmail());
 
         model.addAttribute("success", success);
-        model.addAttribute("error", error);
+        model.addAttribute("error", error.toString());
         model.addAttribute("documents", documents);
         model.addAttribute("upload", new Upload());
         model.addAttribute("user", Session.getCandidateAccount());
@@ -96,16 +111,6 @@ public class FilesController {
         CandidateAccount account = Session.getCandidateAccount();
 
         Document document = new Document();
-
-        if (!documentService.existsByCandidateEmailAndTitle(account.getEmail(), "CV")
-                && !file.getTitle().equalsIgnoreCase("cv")){
-            model.addAttribute("success", "");
-            model.addAttribute("error", "ERROR: You must upload a 'CV' first.");
-            model.addAttribute("documents", documentService.getCandidateDocuments(account.getEmail()));
-            model.addAttribute("upload", new Upload());
-            model.addAttribute("user", Session.getCandidateAccount());
-            return "files";
-        }
 
         try {
             List<Document> documents = documentService.getCandidateDocuments(account.getEmail());

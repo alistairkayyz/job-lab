@@ -48,7 +48,7 @@ public class DocumentService {
     public boolean deleteByEntity(Document document){
         repository.delete(document);
 
-        return repository.existsById(document.getId());
+        return !repository.existsById(document.getId());
     }
 
     public long getLastId(){

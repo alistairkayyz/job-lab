@@ -44,17 +44,6 @@ public class QualificationsController {
         String success = "";
         String error = "";
 
-        if (!documentService.existsByCandidateEmailAndTitle(account.getEmail(), "CV")){
-            model.addAttribute("show", false);
-            model.addAttribute("success", "");
-            model.addAttribute("error", "ERROR: You must upload a 'CV' first. Go to 'Files' and upload it");
-            model.addAttribute("qualification", new Qualifications());
-            model.addAttribute("qualificationsList", qualificationService.findByCandidateEmail(account.getEmail()));
-            model.addAttribute("user", Session.getCandidateAccount());
-
-            return "qualifications";
-        }
-
         // get stored files if they exist
         if (qualificationService.existsByEmail(account.getEmail()))
             qualificationsList = qualificationService.findByCandidateEmail(account.getEmail());

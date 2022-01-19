@@ -39,18 +39,6 @@ public class ExperienceController {
         String success = "";
         String error = "";
 
-        if (!documentService.existsByCandidateEmailAndTitle(account.getEmail(), "CV")){
-
-            model.addAttribute("show", false);
-            model.addAttribute("success", "");
-            model.addAttribute("error", "ERROR: You must upload a 'CV' first. Go to 'Files' and upload it");
-            model.addAttribute("experience", new Experience());
-            model.addAttribute("experienceList", experienceList);
-            model.addAttribute("user", Session.getCandidateAccount());
-
-            return "experience";
-        }
-
         // get stored files if they exist
         if (experienceService.existsByCandidateEmail(account.getEmail()))
             experienceList = experienceService.findByCandidateEmail(account.getEmail());

@@ -2,6 +2,10 @@ package com.dso34bt.jobportal.bootstrap;
 
 import com.dso34bt.jobportal.services.DocumentService;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -19,29 +23,42 @@ public class Runner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        /*File file = new File("/Users/alistair/Desktop/demo.pdf");
-        try {
-            FileOutputStream fout = new FileOutputStream(file);
-            String s = "Example of Java program to write Bytes using ByteStream.";
-            byte b[] = documentService.findById(3).get().getContent();
-            fout.write(b);
-            fout.close();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+        String fileName = "alistair.pdf";
 
+        //PDDocument document = new PDDocument();
+
+        File file = new File("alistair.pdf");
         PDDocument document = PDDocument.load(file);
 
-        //Instantiate PDFTextStripper class
-        PDFTextStripper pdfStripper = new PDFTextStripper();
+        PDPage page =document.getPage(1);
+        PDPageContentStream contentStream = new PDPageContentStream(document,page);
 
-        //Retrieving text from PDF document
-        String text = pdfStripper.getText(document);
-        System.out.println(text);
+        //Begin the Content stream
+        contentStream.beginText();
+
+        //Setting the font to the Content stream
+        contentStream.setFont(PDType1Font.COURIER, 14);
+
+        //Setting the position for the line
+        contentStream.newLineAtOffset(20, 450);
+
+        String text = "Hi!!! This is the first sample PDF document.";
+
+        //Adding text in the form of string
+        contentStream.showText(text);
+
+        //Ending the content stream
+        contentStream.endText();
+
+        //Closing the content stream
+        contentStream.close();
+
+        document.save(fileName);
+
+        System.out.println("PDF created");
 
         //Closing the document
-        document.close();*/
+        document.close();
     }
 
 

@@ -71,6 +71,11 @@
             </div>
         </div>
 
+        <div>
+            <a aria-current="page" class="btn btn-pagination m-auto w-25"
+               th:href="@{files(action='generate',id='cv')}">Generate CV <i class="fas fa-cloud-upload-alt"></i></a>
+        </div>
+
         <h2 class="" th:if="${documents.isEmpty()}">You have no files uploaded. 	&#x1F625;</h2>
         <div class=" pt-5 pt-0 pb-3" th:if="${!documents.isEmpty()}">
             <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Uploaded Files</h5>
@@ -95,7 +100,7 @@
                             <a aria-current="page" class="btn btn-outline-dark"
                                th:href="@{download(id=${doc.id})}">Download</a>
                             <a aria-current="page" class="btn btn-outline-danger"
-                               th:href="@{files(id=${doc.id})}">Delete</a>
+                               th:href="@{files(action='delete',id=${doc.id})}">Delete</a>
                         </div>
                     </td>
                 </tr>
@@ -112,7 +117,6 @@
                         <label class="form-label fs-5" for="title">Select Document Title</label>
                         <select class="form-control form-select mb-5" id="title" required th:field="*{title}">
                             <option disabled selected value="">Open this select menu</option>
-                            <option value="CV">CV</option>
                             <option value="ID Copy">ID Copy</option>
                             <option value="Academic Transcript">Academic Transcript</option>
                             <option value="Matric Results">Matric Results</option>
@@ -131,9 +135,6 @@
                 </div>
             </div>
         </form>
-        <div th:if="${!documents.isEmpty()}">
-            <a aria-current="page" class="btn btn-outline-danger m-auto w-25" th:href="@{files(id=all)}">Delete All Files</a>
-        </div>
     </div>
 </div>
 <script th:src="@{assets/bootstrap/js/bootstrap.min.js}"></script>

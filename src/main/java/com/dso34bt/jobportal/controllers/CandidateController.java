@@ -37,16 +37,6 @@ public class CandidateController {
         String success = "";
         String error = "";
 
-        if (!documentService.existsByCandidateEmailAndTitle(account.getEmail(), "CV")){
-            model.addAttribute("show", false);
-            model.addAttribute("success", success);
-            model.addAttribute("error", "ERROR: You must upload a 'CV' first. Go to 'Files' and upload it");
-            model.addAttribute("candidate", candidate);
-            model.addAttribute("user", Session.getCandidateAccount());
-
-            return "profile";
-        }
-
         if (id != null){
             try {
                 if (candidateService.deleteCandidate(Long.parseLong(id)))
