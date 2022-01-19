@@ -6,6 +6,12 @@ import com.dso34bt.jobportal.services.DocumentService;
 import com.dso34bt.jobportal.services.ExperienceService;
 import com.dso34bt.jobportal.services.QualificationService;
 import com.dso34bt.jobportal.utilities.Session;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -24,6 +30,9 @@ import java.util.Optional;
 
 @Controller
 public class FilesController {
+    final PDFont FONT = PDType1Font.HELVETICA;
+    final float FONT_SIZE = 12;
+    final float LEADING = -1.5f * FONT_SIZE;
     private final DocumentService documentService;
     private final CandidateService candidateService;
     private final ExperienceService experienceService;
@@ -196,5 +205,94 @@ public class FilesController {
         }
         model.addAttribute("success", success);
         model.addAttribute("error",error);
+    }
+
+    public void multiline(String text) {
+        try (final PDDocument doc = new PDDocument()) {
+
+            PDPage page = new PDPage();
+            doc.addPage(page);
+            PDPageContentStream contentStream = new PDPageContentStream(doc, page);
+
+            PDRectangle mediaBox = page.getMediaBox();
+            float marginY = 80;
+            float marginX = 60;
+            float width = mediaBox.getWidth() - 2 * marginX;
+            float startX = mediaBox.getLowerLeftX() + marginX;
+            float startY = mediaBox.getUpperRightY() - marginY;
+
+
+
+            contentStream.beginText();
+            addParagraph(contentStream, width, startX, startY, text, false);
+            //contentStream.setFont(FONT, FONT_SIZE);
+            //contentStream.showText("Start here...");
+            addParagraph(contentStream, width, 0, -FONT_SIZE, text, false);
+            contentStream.endText();
+
+            contentStream.close();
+
+            doc.save("example.pdf");
+        }
+        catch (IOException e) {
+            System.err.println("Exception while trying to create pdf document - " + e);
+        }
+    }
+
+    private void addParagraph(PDPageContentStream contentStream, float width, float sx,
+                              float sy, String text, boolean justify) throws IOException {
+
+        List<String> lines = parseLines(text, width);
+        contentStream.setFont(FONT, FONT_SIZE);
+        contentStream.newLineAtOffset(sx, sy);
+
+        for (String line : lines) {
+            float charSpacing = 0;
+            if (justify) {
+                if (line.length() > 1) {
+                    float size = FONT_SIZE * FONT.getStringWidth(line) / 1000;
+                    float free = width - size;
+                    if (free > 0 && !lines.get(lines.size() - 1).equals(line)) {
+                        charSpacing = free / (line.length() - 1);
+                    }
+                }
+            }
+            contentStream.setCharacterSpacing(charSpacing);
+            contentStream.showText(line);
+            contentStream.newLineAtOffset(0, LEADING);
+        }
+    }
+
+    private List<String> parseLines(String text, float width) throws IOException {
+        List<String> lines = new ArrayList<>();
+
+        int lastSpace = -1;
+
+        while (text.length() > 0) {
+            int spaceIndex = text.indexOf(' ', lastSpace + 1);
+
+            if (spaceIndex < 0)
+                spaceIndex = text.length();
+
+            String subString = text.substring(0, spaceIndex);
+            float size = FONT_SIZE * FONT.getStringWidth(subString) / 1000;
+            if (size > width) {
+                if (lastSpace < 0) {
+                    lastSpace = spaceIndex;
+                }
+                subString = text.substring(0, lastSpace);
+                lines.add(subString);
+                text = text.substring(lastSpace).trim();
+                lastSpace = -1;
+            }
+            else if (spaceIndex == text.length()) {
+                lines.add(text);
+                text = "";
+            }
+            else {
+                lastSpace = spaceIndex;
+            }
+        }
+        return lines;
     }
 }
