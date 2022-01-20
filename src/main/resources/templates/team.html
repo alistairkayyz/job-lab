@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport">
+    <title>Job Portal</title>
+    <link rel="stylesheet" th:href="@{assets/bootstrap/css/bootstrap.min.css}">
+    <link href="https://fonts.googleapis.com/css?family=Rubik&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,900" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{assets/fonts/fontawesome-all.min.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Filter.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Login-Form-Clean.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Login-screen.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Navigation-with-Button.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Search-Input-Responsive-with-Icon.css}">
+    <link rel="stylesheet" th:href="@{assets/css/styles.css}">
+</head>
+
+<body style="font-family: Rubik, sans-serif;background: #d6e0f0;">
+<nav class="navbar navbar-light navbar-expand-md navigation-clean-button" style="background: #d6e0f0;">
+    <div class="container"><a class="navbar-brand d-flex" th:href="@{index}"><i class="fab fa-confluence fs-2"></i><span
+            class="ms-2">JobLab.</span></a>
+        <button class="navbar-toggler" data-bs-target="#navcol-1" data-bs-toggle="collapse"><span
+                class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link " th:href="@{job-post}">New Job</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{view-jobs}">View Jobs</a></li>
+                <li class="nav-item" th:if="${user.staffType.equalsIgnoreCase('admin')}"><a class="nav-link active"
+                                                                                            th:href="@{team}">Team</a>
+                </li>
+            </ul>
+            <span th:if="${user == null}" class="navbar-text actions">
+<!--                    <a class="login" th:href="@{login-staff}">Log In</a>-->
+                    <a class="btn btn-light action-button" role="button" style="background: #ee9919;"
+                       th:href="@{login-staff}">Login</a>
+                </span>
+            <div th:if="${user != null}" class="dropdown">
+                <button th:text="${user.email}" class="btn btn-secondary dropdown-toggle" type="button" id="username"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    email@domain.com
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="username">
+                    <li><a class="dropdown-item" th:href="@{logout}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="row p-3 mb-5" style="background: #fff9f4;border-radius: 12px;">
+        <div th:if="${!success.isEmpty()}">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+        </div>
+
+        <div th:if="${!error.isEmpty()}">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+        </div>
+
+        <form class="pt-3" method="post" th:object="${team}">
+            <div>
+                <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Staff Details</h5>
+            </div>
+            <div class=" pt-3 pt-0 pb-3">
+                <div class="row g-3 px-md-3">
+
+                    <div class="col-sm-6 col-md-4">
+                        <label class="form-label" for="firstname">First name</label>
+                        <input class="form-control" id="firstname" name="firstname" placeholder="Ex. John" required
+                               th:field="*{name}" type="text"/>
+                    </div>
+
+                    <div class="col-sm-6 col-md-4"><label class="form-label" for="lastname">Last name</label><input
+                            class="form-control" id="lastname" name="lastname" placeholder="Ex. Doe" required
+                            th:field="*{lastname}" type="text"/>
+                    </div>
+                    <div class="col-sm-6 col-md-4"><label class="form-label" for="email">Email</label><input
+                            class="form-control" id="email" name="email" placeholder="Ex. john@email.com" required
+                            th:field="*{email}" type="email"/>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <label class="form-label" for="role">Role</label>
+                        <select class="form-select" id="role" name="role" required th:field="*{role}">
+                            <option disabled selected value="default">Open this select menu</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Hiring Team">Hiring Team</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6 col-md-4"><label class="form-label" for="password">Password</label>
+                        <input class="form-control" id="password"
+                               name="password" placeholder="Password" required
+                               th:field="*{password}" type="password"/>
+                    </div>
+                    <div class="col-sm-6 col-md-4"><label class="form-label" for="confirm-password">Confirm
+                        Password</label>
+                        <input class="form-control" id="confirm-password"
+                           name="confirm-password" placeholder="Confirm Password" required
+                           th:field="*{confirmPassword}" type="password"/>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-pagination" type="submit">Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+<script th:src="@{assets/bootstrap/js/bootstrap.min.js}"></script>
+<script th:src="@{assets/js/main.js}"></script>
+</body>
+
+</html>

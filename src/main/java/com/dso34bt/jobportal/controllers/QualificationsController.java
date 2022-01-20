@@ -33,6 +33,8 @@ public class QualificationsController {
                                  @RequestParam(value = "action", required = false) String action){
         if (Session.getCandidateAccount() == null) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
 
             return "login";
         }
@@ -80,6 +82,8 @@ public class QualificationsController {
     public String storeQualifications(@ModelAttribute Qualifications qualifications, Model model){
         if (Session.getCandidateAccount() == null) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
 
             return "login";
         }

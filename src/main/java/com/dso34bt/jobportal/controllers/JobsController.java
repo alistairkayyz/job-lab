@@ -19,22 +19,19 @@ import java.util.List;
 
 @Controller
 public class JobsController {
+    private final CandidateAccountService candidateAccountService;
     private final CandidateService candidateService;
-    private final QualificationService qualificationService;
-    private final ExperienceService experienceService;
+    private final DocumentService documentService;
     private final JobPostService jobPostService;
     private final JobPostActivityService activityService;
     private final StaffService staffService;
 
-    public JobsController(CandidateService candidateService,
-                          QualificationService qualificationService,
-                          ExperienceService experienceService,
-                          JobPostService jobPostService,
-                          JobPostActivityService activityService,
-                          StaffService staffService) {
+    public JobsController(CandidateAccountService candidateAccountService, CandidateService candidateService,
+                          DocumentService documentService, JobPostService jobPostService,
+                          JobPostActivityService activityService, StaffService staffService) {
+        this.candidateAccountService = candidateAccountService;
         this.candidateService = candidateService;
-        this.qualificationService = qualificationService;
-        this.experienceService = experienceService;
+        this.documentService = documentService;
         this.jobPostService = jobPostService;
         this.activityService = activityService;
         this.staffService = staffService;
@@ -100,6 +97,8 @@ public class JobsController {
     public String thanks(Model model) {
         if (Session.getCandidateAccount() == null) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
 
             return "login";
         }
@@ -112,6 +111,8 @@ public class JobsController {
     public String jobPost(Model model, @RequestParam(value = "id", required = false) String id) {
         if (Session.getStaffAccount() == null) {
             model.addAttribute("user", new StaffAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
 
             return "login-staff";
         }
@@ -130,6 +131,8 @@ public class JobsController {
     public String saveJob(@ModelAttribute JobPost jobPost, Model model) {
         if (Session.getStaffAccount() == null) {
             model.addAttribute("user", new StaffAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
 
             return "login-staff";
         }
@@ -161,6 +164,8 @@ public class JobsController {
     public String viewJobs(Model model, @RequestParam(value = "id", required = false) String id) {
         if (Session.getStaffAccount() == null) {
             model.addAttribute("user", new StaffAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
 
             return "login-staff";
         }
@@ -177,16 +182,28 @@ public class JobsController {
     public String apply(Model model, @RequestParam(value = "id") String id){
         if (Session.getCandidateAccount() == null) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
 
             return "login";
         }
 
-        JobPost jobPost = jobPostService.getJobPostByID(Long.parseLong(id)).get();
+        CandidateAccount account = Session.getCandidateAccount();
+
+        if (!documentService.existsByCandidateEmailAndTitle(account.getEmail(), "CV")){
+            model.addAttribute("show", false);
+            model.addAttribute("user", Session.getCandidateAccount());
+
+            return "apply";
+        }
+
+        JobPost jobPost = jobPostService.getJobPostByID(Long.parseLong(id)).orElse(new JobPost());
 
         Candidate candidate = candidateService.getCandidateByEmail(Session.getCandidateAccount().getEmail()).get();
 
         boolean status = activityService.applied(jobPost.getId(), candidate.getId());
 
+        model.addAttribute("show", true);
         model.addAttribute("status", status);
         model.addAttribute("jobPost", jobPost);
         model.addAttribute("user", Session.getCandidateAccount());
@@ -198,6 +215,8 @@ public class JobsController {
     public String applying(Model model, @RequestParam(value = "id") String id){
         if (Session.getCandidateAccount() == null) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
 
             return "login";
         }

@@ -164,7 +164,6 @@
                     <div class="form-floating col-12">
                         <textarea class="form-control" id="description" maxlength="5000" style="height: 100px;" th:field="*{description}"></textarea>
                         <label for="description">Description</label>
-                        <p class="text-danger mt-1">Characters left: 5000</p>
                     </div>
                     <div class="col-sm-6 col-md-4"><label class="form-label" for="start_date">Start
                         Date</label>
@@ -189,9 +188,6 @@
                     </div>
                     <div class="col-12">
                         <button class="btn btn-pagination" type="submit">Save experience</button>
-                    </div>
-                    <div class="col-12">
-                        <a class="btn btn-danger" th:href="@{experience(id=${experience.id})}">Delete</a>
                     </div>
                 </div>
             </div>

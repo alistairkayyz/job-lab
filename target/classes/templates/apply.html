@@ -57,10 +57,17 @@
 </nav>
 <div class="container">
     <div class="row p-3 mb-5" style="background: #fff9f4;border-radius: 12px;">
+        <div th:if="${show} == false">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span>CV not found. Please go to [ FILES ] and generate it.</span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+            <h2 >Content will only show when you have generated your CV. 	&#x1F625;</h2>
+        </div>
         <div class="col-md-12 p-0">
             <div class="pt-3">
                 <div class=" pt-3 pt-0 pb-2">
-                    <div class="row g-3 px-md-3">
+                    <div class="row g-3 px-md-3" th:if="${show} == true">
 
                         <div class="col-12" th:if="${status == true}">
                             <p class="bg-success p-2 text-white">You have applied for this job</p>

@@ -23,6 +23,19 @@
         <input aria-hidden="true" id="chk" type="checkbox">
 
         <div class="signup">
+            <div th:if="${!success.isEmpty()}">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${success}"></span>
+                    <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+                </div>
+            </div>
+
+            <div th:if="${!error.isEmpty()}">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+                </div>
+            </div>
             <form class="text-center" method="post" th:action="@{signup}" th:object="${user}">
                 <label aria-hidden="true" class="login-label" for="chk">Sign up</label>
                 <input class="login-input" name="email" placeholder="Email" required="" th:field="*{email}"

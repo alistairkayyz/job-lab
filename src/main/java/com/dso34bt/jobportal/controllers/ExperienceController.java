@@ -29,6 +29,8 @@ public class ExperienceController {
                              @RequestParam(value = "action", required = false) String action){
         if (Session.getCandidateAccount() == null) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
 
             return "login";
         }
@@ -76,6 +78,8 @@ public class ExperienceController {
     public String storeExperience(@ModelAttribute Experience experience, Model model){
         if (Session.getCandidateAccount() == null) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
 
             return "login";
         }
@@ -88,8 +92,11 @@ public class ExperienceController {
         experience.setCandidateAccount(account);
 
         // save the new experience and update if exists
-        if (experience.getId() == null)
+        if (experience.getId() == null || experience.getId() < 1)
             experience.setId(experienceService.getLastId() + 1);
+
+        System.out.println(experienceService.getLastId());
+        System.out.println(experience.getId());
 
         if (experienceService.saveExperience(experience)){
             success = "Experience saved!";

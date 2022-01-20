@@ -30,6 +30,9 @@ public class AccountController {
     @GetMapping("login")
     public String candidateLogin(Model model) {
         model.addAttribute("user", new CandidateAccount());
+        model.addAttribute("success", "");
+        model.addAttribute("error", "");
+
         return "login";
     }
 
@@ -39,11 +42,17 @@ public class AccountController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "");
+
             return "login";
         }
 
         if (!candidateAccountService.existsByEmail(user.getEmail())) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Invalid username or password!");
+
             return "login";
         }
 
@@ -53,11 +62,18 @@ public class AccountController {
 
         if (!userDetails.get().getPassword().equals(user.getPassword())) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Invalid username or password!");
+
             return "login";
         }
 
-        if (!candidateAccountService.saveCandidateAccount(userDetails.get()))
-            System.out.println("Failed to update");
+        if (!candidateAccountService.saveCandidateAccount(userDetails.get())){
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Failed to update user details");
+
+            return "login";
+        }
 
         // if details are verified and true, session user will be set and redirect to apply
         Session.setCandidateAccount(userDetails.get());
@@ -67,12 +83,18 @@ public class AccountController {
     @GetMapping("signup")
     public String candidateSignup(Model model) {
         model.addAttribute("user", new CandidateAccount());
+        model.addAttribute("success", "");
+        model.addAttribute("error", "");
+
         return "signup";
     }
 
     @GetMapping("change-password")
     public String candidateChangePassword(Model model) {
         model.addAttribute("user", new CandidateAccount());
+        model.addAttribute("success", "");
+        model.addAttribute("error", "");
+
         return "change-password";
     }
 
@@ -81,11 +103,17 @@ public class AccountController {
                                 Model model, BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Invalid username or password");
+
             return "change-password";
         }
 
         if (!user.getPassword().equals(user.getConfirmPassword())) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Password does not match!");
+
             return "change-password";
         }
 
@@ -95,11 +123,23 @@ public class AccountController {
 
             if (!candidateAccountService.saveCandidateAccount(account)){
                 model.addAttribute("user", new CandidateAccount());
+                model.addAttribute("success", "");
+                model.addAttribute("error", "Failed to save, try again later!");
+
                 return "change-password";
             }
         }
+        else {
+            model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "User does not exists!");
+
+            return "change-password";
+        }
 
         model.addAttribute("user", new CandidateAccount());
+        model.addAttribute("success", "Password was successfully changed!");
+        model.addAttribute("error", "");
 
         return "login";
     }
@@ -109,26 +149,44 @@ public class AccountController {
                                   Model model, BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Invalid username or password!");
+
+            return "signup";
+        }
+
+        if (candidateAccountService.existsByEmail(user.getEmail())) {
+            model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Username alreafy taken!");
+
             return "signup";
         }
 
         if (!user.getPassword().equals(user.getConfirmPassword())) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Password does not match!");
+
             return "signup";
         }
-        CandidateAccount account = user;
 
-        account.setId(candidateAccountService.getLastId() + 1);
-        account.setEmailNotificationActive(false);
-        account.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now()));
-        account.setLastLoginDate(Timestamp.valueOf(LocalDateTime.now()));
+        user.setId(candidateAccountService.getLastId() + 1);
+        user.setEmailNotificationActive(false);
+        user.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now()));
+        user.setLastLoginDate(Timestamp.valueOf(LocalDateTime.now()));
 
-        if (!candidateAccountService.saveCandidateAccount(account)){
+        if (!candidateAccountService.saveCandidateAccount(user)){
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Failed to save user, try again later!");
+
             return "signup";
         }
 
         model.addAttribute("user", new CandidateAccount());
+        model.addAttribute("success", "You've successfully signed up!");
+        model.addAttribute("error", "");
 
         return "login";
     }
@@ -136,6 +194,9 @@ public class AccountController {
     @GetMapping("login-staff")
     public String staffLogin(Model model) {
         model.addAttribute("user", new StaffAccount());
+        model.addAttribute("success", "");
+        model.addAttribute("error", "");
+
         return "login-staff";
     }
 
@@ -144,11 +205,15 @@ public class AccountController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("user", new StaffAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Invalid username or password!");
             return "login-staff";
         }
 
         if (!staffAccountService.existsByEmail(user.getEmail())) {
             model.addAttribute("user", new StaffAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Invalid username or password!");
 
             return "login-staff";
         }
@@ -159,12 +224,16 @@ public class AccountController {
 
         if (!userDetails.get().getPassword().equals(user.getPassword())) {
             model.addAttribute("user", new StaffAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Invalid username or password!");
 
             return "login-staff";
         }
 
-        if (!staffAccountService.saveStaffAccount(userDetails.get()))
-            System.out.println("Failed to update");
+        if (!staffAccountService.saveStaffAccount(userDetails.get())){
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Failed to update!");
+        }
 
         // if details are verified and true, session user will be set and redirect to dashboard
         Session.setStaffAccount(userDetails.get());
@@ -177,6 +246,8 @@ public class AccountController {
     @GetMapping("forgot-password")
     public String staffChangePassword(Model model) {
         model.addAttribute("user", new StaffAccount());
+        model.addAttribute("success", "");
+        model.addAttribute("error", "");
         return "forgot-password";
     }
 
@@ -185,11 +256,17 @@ public class AccountController {
                                            Model model, BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
             model.addAttribute("user", new StaffAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Invalid username or password!");
+
             return "forgot-password";
         }
 
         if (!user.getPassword().equals(user.getConfirmPassword())) {
             model.addAttribute("user", new StaffAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "Invalid username or password!");
+
             return "forgot-password";
         }
 
@@ -199,11 +276,16 @@ public class AccountController {
 
             if (!staffAccountService.saveStaffAccount(account)){
                 model.addAttribute("user", new StaffAccount());
+                model.addAttribute("success", "");
+                model.addAttribute("error", "Failed to save, try again later!");
+
                 return "forgot-password";
             }
         }
 
         model.addAttribute("user", new StaffAccount());
+        model.addAttribute("success", "Successfully changed your password!");
+        model.addAttribute("error", "");
 
         return "login-staff";
     }

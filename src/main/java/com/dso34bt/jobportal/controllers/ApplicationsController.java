@@ -34,6 +34,8 @@ public class ApplicationsController {
     public String getApplications(Model model, @RequestParam(value = "id", required = false) String id){
         if (Session.getCandidateAccount() == null) {
             model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
 
             return "login";
         }
