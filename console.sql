@@ -1,3 +1,17 @@
+drop table if exists qualifications;
+drop table if exists experience;
+drop table if exists documents;
+drop table if exists job_post_activity;
+drop table if exists assessment_results;
+drop table if exists candidate;
+drop table if exists job_post_assessment;
+drop table if exists job_post;
+drop table if exists requests;
+drop table if exists candidate_emails;
+drop table if exists candidate_account;
+drop table if exists recruiter_emails;
+drop table if exists recruiter;
+
 -- Table: recruiter_account
 CREATE TABLE recruiter
 (
@@ -16,7 +30,7 @@ CREATE TABLE recruiter
 );
 
 -- Table: candidate_account
-CREATE TABLE candidate_account
+    CREATE TABLE candidate_account
 (
     id                        bigint       NOT NULL PRIMARY KEY,
     email                     varchar(255) NOT NULL UNIQUE,
