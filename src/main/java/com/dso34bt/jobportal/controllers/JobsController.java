@@ -240,7 +240,7 @@ public class JobsController {
 
         model.addAttribute("error", error);
         model.addAttribute("success", success);
-        model.addAttribute("jobs", jobPostService.getJobPosts());
+        model.addAttribute("jobs", jobPostService.getByRecruiterId(recruiter.getId()));
         model.addAttribute("user", Session.getUser());
 
         return "view-jobs";
