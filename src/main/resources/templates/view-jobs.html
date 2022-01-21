@@ -27,7 +27,7 @@
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link " th:href="@{job-post}">New Job</a></li>
                 <li class="nav-item"><a class="nav-link active" th:href="@{view-jobs}">View Jobs</a></li>
-                <li class="nav-item" ><a class="nav-link" th:href="@{team}">Team</a></li>
+                <li class="nav-item" ><a class="nav-link" th:href="@{applicants}">Applicants</a></li>
             </ul>
             <span class="navbar-text actions" th:if="${user == null}">
                     <a class="login" th:href="@{login}">Log In</a>
@@ -65,7 +65,7 @@
             </div>
         </div>
         <form action="" class="" method="get">
-            <div class="pt-3">
+            <div class="pt-3" style="min-width: 520px;">
                 <div>
                     <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Jobs Table</h5>
                 </div>
@@ -74,7 +74,7 @@
                         <thead>
                         <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Job Tile</th>
+                            <th scope="col">Job Title</th>
                             <th scope="col">Posted On</th>
                             <th scope="col">Actions</th>
                         </tr>
@@ -98,6 +98,7 @@
         </form>
     </div>
 </div>
+
 <script th:src="@{assets/bootstrap/js/bootstrap.min.js}"></script>
 <script th:src="@{assets/js/main.js}"></script>
 </body>

@@ -9,7 +9,9 @@ import java.util.List;
 public interface JobPostActivityRepository extends JpaRepository<JobPostActivity,Long> {
     List<JobPostActivity> findByCandidateId(long id);
     List<JobPostActivity> findByJobPostId(long id);
+    List<JobPostActivity> findByJobPostRecruiterEmail(String email);
     boolean existsByCandidate_Id(long id);
+    boolean existsByJobPostRecruiterEmail(String email);
     void deleteByCandidateIdAndJobPostId(long candidateId, long jobPostId);
 
     @Query("select max(c.id) from JobPostActivity c")

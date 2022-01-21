@@ -27,6 +27,10 @@ public class JobPostService {
         return repository.existsById(id);
     }
 
+    public boolean existsByRecruiterEmail(String email){
+        return repository.existsByRecruiterEmail(email);
+    }
+
     public boolean saveJobPost(JobPost jobPost){
         repository.save(jobPost);
 

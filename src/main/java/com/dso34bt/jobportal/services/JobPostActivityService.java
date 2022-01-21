@@ -20,6 +20,10 @@ public class JobPostActivityService {
         return repository.findByJobPostId(id);
     }
 
+    public List<JobPostActivity> findByJobPostRecruiterEmail(String email){
+        return repository.findByJobPostRecruiterEmail(email);
+    }
+
     public List<JobPostActivity> getByCandidateId(long id) {
         return repository.findByCandidateId(id);
     }
@@ -38,6 +42,9 @@ public class JobPostActivityService {
         return repository.existsById(jobPostActivity.getId());
     }
 
+    public boolean existsByRecruiterEmail(String email){
+        return repository.existsByJobPostRecruiterEmail(email);
+    }
     public boolean deleteByCandidateIdAndJobPostId(long candidateId, long jobPostId) {
         repository.deleteByCandidateIdAndJobPostId(candidateId, jobPostId);
 

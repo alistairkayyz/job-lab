@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface JobPostRepository extends JpaRepository<JobPost,Long> {
     List<JobPost> findByRecruiterId(long id);
 
+    boolean existsByRecruiterEmail(String email);
+
     Optional<JobPost> findByTitle(String title);
 
     @Query("select max(c.id) from JobPost c")

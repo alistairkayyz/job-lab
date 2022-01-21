@@ -47,55 +47,74 @@
     </div>
 </nav>
 <div class="container">
-    <header class="ms-5 h-100 mb-4">
-        <h2>List of Jobs</h2>
-    </header>
-    <div class="row p-3 mb-5" style="background: #fff9f4;border-radius: 12px;">
+    <div class="row p-3 mb-5" style="min-width: 1000px; background: #fff9f4;border-radius: 12px;">
         <div th:if="${!success.isEmpty()}">
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <span th:text="${success}"></span>
+                <span th:text="${success}">Success</span>
                 <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
             </div>
         </div>
 
         <div th:if="${!error.isEmpty()}">
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <span th:text="${error}"></span>
+                <span th:text="${error}">Error</span>
                 <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
             </div>
         </div>
-        <form action="" class="" method="get">
-            <div class="pt-3" style="min-width: 520px;">
-                <div>
-                    <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Jobs Table</h5>
-                </div>
-                <div class=" pt-3 pt-0 pb-3">
-                    <table class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Job Title</th>
-                            <th scope="col">Posted On</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="job : ${jobs}">
-                            <th th:text="${job.id}">1</th>
-                            <td th:text="${job.title}">Junior Java Developer</td>
-                            <td th:text="${job.createdDate}">2021-11-15</td>
-                            <td>
-                                <div class="btn-group">
-                                    <a class="btn btn-primary" th:href="@{job-post(id=${job.id})}">Edit</a>
-                                    <a aria-current="page" class="btn btn-danger" th:href="@{view-jobs(id=${job.id})}">Delete</a>
-                                </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+
+        <h2 class="" th:if="${applicants.isEmpty()}">No applications found. 	&#x1F625;</h2>
+
+        <div th:if="${!applicants.isEmpty()}">
+            <div>
+                <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Applicants Table</h5>
             </div>
-        </form>
+            <div>
+                <form class="row g-3" method="get">
+                    <div>
+
+                    </div>
+                    <div class="col-auto">
+                        <input class="form-control" id="search" name="search" placeholder="Enter Job title" type="search">
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-primary mb-3" type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
+            <div class=" pt-3 pt-0 pb-3">
+                <div class=" text-end my-3">
+                    <span class="bg-dark text-white px-4 py-2 rounded text-end" th:text="${'Number of applicants: ' + applicants.size()}">Number of applicants: 32</span>
+                </div>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">Firstname</th>
+                        <th scope="col">Lastname</th>
+                        <th scope="col">Email Address</th>
+                        <th scope="col">Cellphone</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Job Title</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="applicant : ${applicants}">
+                        <td th:text="${applicant.candidate.first_name}">John</td>
+                        <td th:text="${applicant.candidate.last_name}">Doe</td>
+                        <td th:text="${applicant.candidate.candidateAccount.email}">john@doe.com</td>
+                        <td th:text="${applicant.candidate.cellphone}">0753453456</td>
+                        <td th:text="${applicant.jobPostActivity.status}">IN PROGRESS</td>
+                        <td th:text="${applicant.jobPost.title}">Junior Java Developer</td>
+                        <td>
+                            <div class="btn-group">
+                                <a class="btn btn-primary" th:href="@{candidate(action='candidate',id=${applicant.candidate.id})}">View CV</a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -104,3 +123,4 @@
 </body>
 
 </html>
+
