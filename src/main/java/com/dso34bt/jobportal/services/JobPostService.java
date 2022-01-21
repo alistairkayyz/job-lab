@@ -27,12 +27,14 @@ public class JobPostService {
         return repository.existsById(id);
     }
 
-    public void saveJobPost(JobPost jobPost){
+    public boolean saveJobPost(JobPost jobPost){
         repository.save(jobPost);
+
+        return repository.existsById(jobPost.getId());
     }
 
-    public List<JobPost> getByStaffId(long id){
-        return repository.findByStaffId(id);
+    public List<JobPost> getByRecruiterId(long id){
+        return repository.findByRecruiterId(id);
     }
 
     public Optional<JobPost> findByTitle(String title){
@@ -42,7 +44,7 @@ public class JobPostService {
     public boolean deleteJobPostById(long id){
         repository.deleteById(id);
 
-        return repository.existsById(id);
+        return !repository.existsById(id);
     }
 
     public long getLastId(){

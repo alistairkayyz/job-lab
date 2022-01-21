@@ -27,12 +27,12 @@
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link " th:href="@{job-post}">New Job</a></li>
                 <li class="nav-item"><a class="nav-link active" th:href="@{view-jobs}">View Jobs</a></li>
-                <li class="nav-item" th:if="${user.staffType.equalsIgnoreCase('admin')}"><a class="nav-link" th:href="@{team}">Team</a></li>
+                <li class="nav-item" ><a class="nav-link" th:href="@{team}">Team</a></li>
             </ul>
             <span class="navbar-text actions" th:if="${user == null}">
-<!--                    <a class="login" th:href="@{login-staff}">Log In</a>-->
+                    <a class="login" th:href="@{login}">Log In</a>
                     <a class="btn btn-light action-button" role="button" style="background: #ee9919;"
-                       th:href="@{login-staff}">Login</a>
+                       th:href="@{recruiter-signup}">Signup</a>
                 </span>
             <div class="dropdown" th:if="${user != null}">
                 <button aria-expanded="false" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="username" th:text="${user.email}"
@@ -51,6 +51,19 @@
         <h2>List of Jobs</h2>
     </header>
     <div class="row p-3 mb-5" style="background: #fff9f4;border-radius: 12px;">
+        <div th:if="${!success.isEmpty()}">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+        </div>
+
+        <div th:if="${!error.isEmpty()}">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+        </div>
         <form action="" class="" method="get">
             <div class="pt-3">
                 <div>

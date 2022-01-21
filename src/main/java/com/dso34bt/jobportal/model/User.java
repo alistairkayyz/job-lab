@@ -2,28 +2,18 @@ package com.dso34bt.jobportal.model;
 
 import java.io.Serializable;
 
-public class Team implements Serializable {
-    private String name;
-    private String lastname;
-    private String email;
+public class User implements Serializable {
     private String role;
+    private String email;
     private String password;
     private String confirmPassword;
 
-    public String getName() {
-        return name;
+    public String getRole() {
+        return role;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public String getEmail() {
@@ -32,14 +22,6 @@ public class Team implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 
     public String getPassword() {
@@ -60,13 +42,10 @@ public class Team implements Serializable {
 
     @Override
     public String toString() {
-        return "Team{" +
-                "name='" + name + '\'' +
-                ", lastname='" + lastname + '\'' +
+        return "User{" +
+                "role='" + role + '\'' +
                 ", email='" + email + '\'' +
-                ", role='" + role + '\'' +
                 ", password='" + password + '\'' +
-                ", confirmPassword='" + confirmPassword + '\'' +
                 '}';
     }
 }

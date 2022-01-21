@@ -2,9 +2,11 @@ package com.dso34bt.jobportal.controllers;
 
 import com.dso34bt.jobportal.model.CandidateAccount;
 import com.dso34bt.jobportal.model.JobPost;
-import com.dso34bt.jobportal.model.StaffAccount;
+import com.dso34bt.jobportal.model.Recruiter;
+import com.dso34bt.jobportal.model.User;
 import com.dso34bt.jobportal.services.CandidateAccountService;
-import com.dso34bt.jobportal.services.StaffAccountService;
+import com.dso34bt.jobportal.services.JobPostService;
+import com.dso34bt.jobportal.services.RecruiterService;
 import com.dso34bt.jobportal.utilities.Session;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,16 +22,22 @@ import java.util.Optional;
 @Controller
 public class AccountController {
     private final CandidateAccountService candidateAccountService;
-    private final StaffAccountService staffAccountService;
+    private final RecruiterService recruiterService;
+    private final JobPostService jobPostService;
 
-    public AccountController(CandidateAccountService candidateAccountService, StaffAccountService staffAccountService) {
+    public AccountController(CandidateAccountService candidateAccountService,
+                             RecruiterService recruiterService, JobPostService jobPostService) {
         this.candidateAccountService = candidateAccountService;
-        this.staffAccountService = staffAccountService;
+        this.recruiterService = recruiterService;
+        this.jobPostService = jobPostService;
     }
 
     @GetMapping("login")
     public String candidateLogin(Model model) {
-        model.addAttribute("user", new CandidateAccount());
+        User user = new User();
+        user.setRole("Default");
+
+        model.addAttribute("user", user);
         model.addAttribute("success", "");
         model.addAttribute("error", "");
 
@@ -37,256 +45,226 @@ public class AccountController {
     }
 
     @PostMapping("login")
-    public String verifyCandidate(@ModelAttribute CandidateAccount user,
+    public String verifyCandidate(@ModelAttribute User user,
                                   Model model, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("user", user);
             model.addAttribute("success", "");
             model.addAttribute("error", "");
 
             return "login";
         }
 
-        if (!candidateAccountService.existsByEmail(user.getEmail())) {
-            model.addAttribute("user", new CandidateAccount());
-            model.addAttribute("success", "");
-            model.addAttribute("error", "Invalid username or password!");
+        CandidateAccount candidateAccount;
+        Recruiter recruiter;
 
-            return "login";
+        if (user.getRole().equalsIgnoreCase("candidate")){
+            if (!candidateAccountService.existsByEmail(user.getEmail())) {
+                model.addAttribute("user", user);
+                model.addAttribute("success", "");
+                model.addAttribute("error", "Invalid username or password!");
+
+                return "login";
+            }
+            candidateAccount = candidateAccountService.getUserAccountByEmail(user.getEmail()).get();
+
+            if (!candidateAccount.getPassword().equals(user.getPassword())) {
+                model.addAttribute("user", user);
+                model.addAttribute("success", "");
+                model.addAttribute("error", "Invalid username or password!");
+
+                return "login";
+            }
+
+            candidateAccount.setLastLoginDate(Timestamp.valueOf(LocalDateTime.now()));
+
+            if (!candidateAccountService.saveCandidateAccount(candidateAccount)){
+                model.addAttribute("user", user);
+                model.addAttribute("success", "");
+                model.addAttribute("error", "Failed to update user details");
+
+                return "login";
+            }
+            else {
+                Session.setUser(user);
+                model.addAttribute("user", user);
+                model.addAttribute("jobPosts", jobPostService.getJobPosts());
+                return "redirect:/index";
+            }
+
         }
 
-        Optional<CandidateAccount> userDetails = candidateAccountService.getUserAccountByEmail(user.getEmail());
+        if (user.getRole().equalsIgnoreCase("recruiter")){
+            if (!recruiterService.existsByEmail(user.getEmail())) {
+                model.addAttribute("user", user);
+                model.addAttribute("success", "");
+                model.addAttribute("error", "Invalid username or password!");
 
-        userDetails.get().setLastLoginDate(Timestamp.valueOf(LocalDateTime.now()));
+                return "login";
+            }
 
-        if (!userDetails.get().getPassword().equals(user.getPassword())) {
-            model.addAttribute("user", new CandidateAccount());
-            model.addAttribute("success", "");
-            model.addAttribute("error", "Invalid username or password!");
+            recruiter = recruiterService.getRecruiterByEmail(user.getEmail()).get();
 
-            return "login";
+            if (!recruiter.getPassword().equals(user.getPassword())) {
+                model.addAttribute("user", user);
+                model.addAttribute("success", "");
+                model.addAttribute("error", "Invalid username or password!");
+
+                return "login";
+            }
+
+            recruiter.setLastLoginDate(Timestamp.valueOf(LocalDateTime.now()));
+
+            if (!recruiterService.saveRecruiter(recruiter)){
+                model.addAttribute("user", user);
+                model.addAttribute("success", "");
+                model.addAttribute("error", "Failed to update user details");
+
+                return "login";
+            }
+            else {
+                Session.setUser(user);
+                model.addAttribute("user", user);
+                model.addAttribute("jobs", jobPostService.getJobPosts());
+                return "redirect:/view-jobs";
+            }
         }
+        model.addAttribute("user", user);
+        model.addAttribute("success", "");
+        model.addAttribute("error", "Something went wrong! Try again later");
 
-        if (!candidateAccountService.saveCandidateAccount(userDetails.get())){
-            model.addAttribute("success", "");
-            model.addAttribute("error", "Failed to update user details");
-
-            return "login";
-        }
-
-        // if details are verified and true, session user will be set and redirect to apply
-        Session.setCandidateAccount(userDetails.get());
-        return "redirect:/index";
+        return "login";
     }
 
     @GetMapping("signup")
     public String candidateSignup(Model model) {
-        model.addAttribute("user", new CandidateAccount());
+        model.addAttribute("candidate", new CandidateAccount());
         model.addAttribute("success", "");
         model.addAttribute("error", "");
 
         return "signup";
     }
 
-    @GetMapping("change-password")
-    public String candidateChangePassword(Model model) {
-        model.addAttribute("user", new CandidateAccount());
-        model.addAttribute("success", "");
-        model.addAttribute("error", "");
-
-        return "change-password";
-    }
-
-    @PostMapping("change-password")
-    public String saveCandidateNewPassword(@ModelAttribute CandidateAccount user,
-                                Model model, BindingResult bindingResult){
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("user", new CandidateAccount());
-            model.addAttribute("success", "");
-            model.addAttribute("error", "Invalid username or password");
-
-            return "change-password";
-        }
-
-        if (!user.getPassword().equals(user.getConfirmPassword())) {
-            model.addAttribute("user", new CandidateAccount());
-            model.addAttribute("success", "");
-            model.addAttribute("error", "Password does not match!");
-
-            return "change-password";
-        }
-
-        if (candidateAccountService.existsByEmail(user.getEmail())){
-            CandidateAccount account = candidateAccountService.getUserAccountByEmail(user.getEmail()).get();
-            account.setPassword(user.getPassword());
-
-            if (!candidateAccountService.saveCandidateAccount(account)){
-                model.addAttribute("user", new CandidateAccount());
-                model.addAttribute("success", "");
-                model.addAttribute("error", "Failed to save, try again later!");
-
-                return "change-password";
-            }
-        }
-        else {
-            model.addAttribute("user", new CandidateAccount());
-            model.addAttribute("success", "");
-            model.addAttribute("error", "User does not exists!");
-
-            return "change-password";
-        }
-
-        model.addAttribute("user", new CandidateAccount());
-        model.addAttribute("success", "Password was successfully changed!");
-        model.addAttribute("error", "");
-
-        return "login";
-    }
-
     @PostMapping("signup")
-    public String saveCandidate(@ModelAttribute CandidateAccount user,
+    public String saveCandidate(@ModelAttribute CandidateAccount candidate,
                                   Model model, BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
-            model.addAttribute("user", new CandidateAccount());
+            model.addAttribute("candidate", new CandidateAccount());
             model.addAttribute("success", "");
             model.addAttribute("error", "Invalid username or password!");
 
             return "signup";
         }
 
-        if (candidateAccountService.existsByEmail(user.getEmail())) {
-            model.addAttribute("user", new CandidateAccount());
+        if (candidateAccountService.existsByEmail(candidate.getEmail())) {
+            model.addAttribute("candidate", new CandidateAccount());
             model.addAttribute("success", "");
-            model.addAttribute("error", "Username alreafy taken!");
+            model.addAttribute("error", "Username already taken!");
 
             return "signup";
         }
 
-        if (!user.getPassword().equals(user.getConfirmPassword())) {
-            model.addAttribute("user", new CandidateAccount());
+        if (!candidate.getPassword().equals(candidate.getConfirmPassword())) {
+            model.addAttribute("candidate", new CandidateAccount());
             model.addAttribute("success", "");
             model.addAttribute("error", "Password does not match!");
 
             return "signup";
         }
 
-        user.setId(candidateAccountService.getLastId() + 1);
-        user.setEmailNotificationActive(false);
-        user.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now()));
-        user.setLastLoginDate(Timestamp.valueOf(LocalDateTime.now()));
+        candidate.setId(candidateAccountService.getLastId() + 1);
+        candidate.setEmailNotificationActive(false);
+        candidate.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now()));
+        candidate.setLastLoginDate(Timestamp.valueOf(LocalDateTime.now()));
 
-        if (!candidateAccountService.saveCandidateAccount(user)){
-            model.addAttribute("user", new CandidateAccount());
+        if (!candidateAccountService.saveCandidateAccount(candidate)){
+            model.addAttribute("candidate", new CandidateAccount());
             model.addAttribute("success", "");
             model.addAttribute("error", "Failed to save user, try again later!");
 
             return "signup";
         }
 
-        model.addAttribute("user", new CandidateAccount());
+        User user = new User();
+        user.setRole("Default");
+
+        model.addAttribute("user", user);
         model.addAttribute("success", "You've successfully signed up!");
         model.addAttribute("error", "");
 
         return "login";
     }
 
-    @GetMapping("login-staff")
-    public String staffLogin(Model model) {
-        model.addAttribute("user", new StaffAccount());
-        model.addAttribute("success", "");
-        model.addAttribute("error", "");
-
-        return "login-staff";
-    }
-
-    @PostMapping("login-staff")
-    public String verifyStaff(@ModelAttribute StaffAccount user, Model model, BindingResult bindingResult) {
-
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("user", new StaffAccount());
-            model.addAttribute("success", "");
-            model.addAttribute("error", "Invalid username or password!");
-            return "login-staff";
-        }
-
-        if (!staffAccountService.existsByEmail(user.getEmail())) {
-            model.addAttribute("user", new StaffAccount());
-            model.addAttribute("success", "");
-            model.addAttribute("error", "Invalid username or password!");
-
-            return "login-staff";
-        }
-
-        Optional<StaffAccount> userDetails = staffAccountService.getUserAccountByEmail(user.getEmail());
-
-        userDetails.get().setLastLoginDate(Timestamp.valueOf(LocalDateTime.now()));
-
-        if (!userDetails.get().getPassword().equals(user.getPassword())) {
-            model.addAttribute("user", new StaffAccount());
-            model.addAttribute("success", "");
-            model.addAttribute("error", "Invalid username or password!");
-
-            return "login-staff";
-        }
-
-        if (!staffAccountService.saveStaffAccount(userDetails.get())){
-            model.addAttribute("success", "");
-            model.addAttribute("error", "Failed to update!");
-        }
-
-        // if details are verified and true, session user will be set and redirect to dashboard
-        Session.setStaffAccount(userDetails.get());
-        model.addAttribute("jobPost", new JobPost());
-        model.addAttribute("user", Session.getStaffAccount());
-        return "job-post";
-
-    }
-
     @GetMapping("forgot-password")
-    public String staffChangePassword(Model model) {
-        model.addAttribute("user", new StaffAccount());
+    public String changePassword(Model model) {
+        User user = new User();
+        user.setRole("Default");
+
+        model.addAttribute("user", user);
         model.addAttribute("success", "");
         model.addAttribute("error", "");
+
         return "forgot-password";
     }
 
     @PostMapping("forgot-password")
-    public String saveStaffNewPassword(@ModelAttribute StaffAccount user,
+    public String newPassword(@ModelAttribute User user,
                                            Model model, BindingResult bindingResult){
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("user", new StaffAccount());
-            model.addAttribute("success", "");
-            model.addAttribute("error", "Invalid username or password!");
-
-            return "forgot-password";
-        }
+        CandidateAccount candidateAccount;
+        Recruiter recruiter;
 
         if (!user.getPassword().equals(user.getConfirmPassword())) {
-            model.addAttribute("user", new StaffAccount());
+            model.addAttribute("user", user);
             model.addAttribute("success", "");
-            model.addAttribute("error", "Invalid username or password!");
+            model.addAttribute("error", "Password does not match!");
 
             return "forgot-password";
         }
 
-        if (staffAccountService.existsByEmail(user.getEmail())){
-            StaffAccount account = staffAccountService.getUserAccountByEmail(user.getEmail()).get();
-            account.setPassword(user.getPassword());
-
-            if (!staffAccountService.saveStaffAccount(account)){
-                model.addAttribute("user", new StaffAccount());
+        if (user.getRole().equalsIgnoreCase("candidate")){
+            if (!candidateAccountService.existsByEmail(user.getEmail())) {
+                model.addAttribute("user", user);
                 model.addAttribute("success", "");
-                model.addAttribute("error", "Failed to save, try again later!");
+                model.addAttribute("error", "User not found!");
+
+                return "forgot-password";
+            }
+            candidateAccount = candidateAccountService.getUserAccountByEmail(user.getEmail()).get();
+
+            if (!candidateAccountService.saveCandidateAccount(candidateAccount)){
+                model.addAttribute("user", user);
+                model.addAttribute("success", "");
+                model.addAttribute("error", "Failed to update password");
+
+                return "forgot-password";
+            }
+
+        }
+
+        if (user.getRole().equalsIgnoreCase("recruiter")){
+            if (!recruiterService.existsByEmail(user.getEmail())) {
+                model.addAttribute("user", user);
+                model.addAttribute("success", "");
+                model.addAttribute("error", "User not found!");
+
+                return "forgot-password";
+            }
+
+            recruiter = recruiterService.getRecruiterByEmail(user.getEmail()).get();
+
+            if (!recruiterService.saveRecruiter(recruiter)){
+                model.addAttribute("user", user);
+                model.addAttribute("success", "");
+                model.addAttribute("error", "Failed to update password");
 
                 return "forgot-password";
             }
         }
-
-        model.addAttribute("user", new StaffAccount());
-        model.addAttribute("success", "Successfully changed your password!");
+        model.addAttribute("user", user);
+        model.addAttribute("success", "Successfully changed password!");
         model.addAttribute("error", "");
 
-        return "login-staff";
+        return "login";
     }
 }

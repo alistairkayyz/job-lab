@@ -19,7 +19,7 @@
 
 <body style="font-family: Rubik, sans-serif;background: #d6e0f0;">
 <nav class="navbar navbar-light navbar-expand-md navigation-clean-button" style="background: #d6e0f0;">
-    <div class="container"><a class="navbar-brand d-flex" th:href="@{index}" disabled><i class="fab fa-confluence fs-2"></i><span
+    <div class="container"><a class="navbar-brand d-flex" disabled th:href="@{index}"><i class="fab fa-confluence fs-2"></i><span
             class="ms-2">JobLab.</span></a>
         <button class="navbar-toggler" data-bs-target="#navcol-1" data-bs-toggle="collapse"><span
                 class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
@@ -27,20 +27,20 @@
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link active" th:href="@{job-post}">New Job</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{view-jobs}">View Jobs</a></li>
-                <li class="nav-item" th:if="${user.staffType.equalsIgnoreCase('admin')}"><a class="nav-link" th:href="@{team}">Team</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{team}">Team</a></li>
             </ul>
-            <span th:if="${user == null}" class="navbar-text actions">
-<!--                    <a class="login" th:href="@{login-staff}">Log In</a>-->
+            <span class="navbar-text actions" th:if="${user == null}">
+                    <a class="login" th:href="@{login}">Log In</a>
                     <a class="btn btn-light action-button" role="button" style="background: #ee9919;"
-                       th:href="@{login-staff}">Login</a>
+                       th:href="@{recruiter-signup}">Signup</a>
                 </span>
-            <div th:if="${user != null}" class="dropdown">
-                <button th:text="${user.email}" class="btn btn-secondary dropdown-toggle" type="button" id="username"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false">
+            <div class="dropdown" th:if="${user != null}">
+                <button aria-expanded="false" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="username"
+                        th:text="${user.email}"
+                        type="button">
                     email@domain.com
                 </button>
-                <ul class="dropdown-menu" aria-labelledby="username">
+                <ul aria-labelledby="username" class="dropdown-menu">
                     <li><a class="dropdown-item" th:href="@{logout}">Logout</a></li>
                 </ul>
             </div>
@@ -48,12 +48,25 @@
     </div>
 </nav>
 <div class="container">
-    <header class="ms-5 h-100 mb-4">
+    <header class="h-100 mb-4">
         <h2>Post New Job</h2>
     </header>
     <div class="row p-3 mb-5" style="background: #fff9f4;border-radius: 12px;">
-        <form th:action="@{job-post}" class="" method="post" th:object="${jobPost}">
-            <input th:type="hidden" th:name="id" th:field="*{id}">
+        <div th:if="${!success.isEmpty()}">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+        </div>
+
+        <div th:if="${!error.isEmpty()}">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+        </div>
+        <form class="" method="post" th:action="@{job-post}" th:object="${jobPost}">
+            <input th:field="*{id}" th:name="id" th:type="hidden">
             <div class="pt-3">
                 <div>
                     <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Job Post Details</h5>
@@ -61,12 +74,12 @@
                 <div class=" pt-3 pt-0 pb-3">
                     <div class="form-floating col-12 mb-3">
                         <input class="form-control" id="job-title" placeholder="Ex. IT Internship" required
-                               type="text" th:field="*{title}">
+                               th:field="*{title}" type="text">
                         <label for="job-title">Job Title</label>
                     </div>
                     <div class="form-floating col-12 mb-3">
                         <input class="form-control" id="job-type" placeholder="Ex. Fixed-term" required
-                               type="text" th:field="*{type}">
+                               th:field="*{type}" type="text">
                         <label for="job-type">Job Type</label>
                     </div>
 
@@ -115,8 +128,16 @@
 
                     <div class="form-floating col-sm-6 col-md-4 mb-3" >
                         <input class="form-control" id="closing-date" placeholder="Closing Date"
-                               required type="datetime-local" th:field="*{timestamp}">
+                               required th:field="*{timestamp}" type="datetime-local">
                         <label for="closing-date">Closing Date</label>
+                    </div>
+
+                    <div class="form-check col-sm-6 col-md-4 mb-3">
+                        <input class="form-check-input" id="assessment" th:field="*{assessmentRequired}"
+                               type="checkbox"/>
+                        <label class="form-check-label" for="assessment">
+                            Tick if assessment is required.
+                        </label>
                     </div>
 
                     <div class="col-12">
@@ -127,7 +148,6 @@
 
         </form>
     </div>
-</div>
 </div>
 <script th:src="@{assets/bootstrap/js/bootstrap.min.js}"></script>
 <script th:src="@{assets/js/main.js}"></script>

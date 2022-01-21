@@ -1,6 +1,7 @@
 package com.dso34bt.jobportal.controllers;
 
 import com.dso34bt.jobportal.model.*;
+import com.dso34bt.jobportal.services.CandidateAccountService;
 import com.dso34bt.jobportal.services.DocumentService;
 import com.dso34bt.jobportal.services.ExperienceService;
 import com.dso34bt.jobportal.utilities.Session;
@@ -18,25 +19,37 @@ import java.util.List;
 public class ExperienceController {
     private final ExperienceService experienceService;
     private final DocumentService documentService;
+    private final CandidateAccountService candidateAccountService;
 
-    public ExperienceController(ExperienceService experienceService, DocumentService documentService) {
+    public ExperienceController(ExperienceService experienceService, DocumentService documentService,
+                                CandidateAccountService candidateAccountService) {
         this.experienceService = experienceService;
         this.documentService = documentService;
+        this.candidateAccountService = candidateAccountService;
     }
 
     @GetMapping("experience")
     public String experience(Model model, @RequestParam(value = "id", required = false) String id,
                              @RequestParam(value = "action", required = false) String action){
-        if (Session.getCandidateAccount() == null) {
-            model.addAttribute("user", new CandidateAccount());
+        if (Session.getUser() == null) {
+            model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
+        if (Session.getUser().getRole().equalsIgnoreCase("recruiter")){
+            Session.setUser(null);
+            model.addAttribute("user", new User());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You are not authorized to access this page!");
+
+            return "login";
+        }
+
         List<Experience> experienceList = new ArrayList<>();
 
-        CandidateAccount account = Session.getCandidateAccount();
+        CandidateAccount account = candidateAccountService.getUserAccountByEmail(Session.getUser().getEmail()).get();
 
         String success = "";
         String error = "";
@@ -58,7 +71,7 @@ public class ExperienceController {
                 model.addAttribute("error", error);
                 model.addAttribute("experience", experienceService.findById(Long.parseLong(id)));
                 model.addAttribute("experienceList", experienceList);
-                model.addAttribute("user", Session.getCandidateAccount());
+                model.addAttribute("user", Session.getUser());
 
                 return "experience";
             }
@@ -69,14 +82,14 @@ public class ExperienceController {
         model.addAttribute("error", error);
         model.addAttribute("experience", new Experience());
         model.addAttribute("experienceList", experienceService.findByCandidateEmail(account.getEmail()));
-        model.addAttribute("user", Session.getCandidateAccount());
+        model.addAttribute("user", Session.getUser());
 
         return "experience";
     }
 
     @PostMapping("experience")
     public String storeExperience(@ModelAttribute Experience experience, Model model){
-        if (Session.getCandidateAccount() == null) {
+        if (Session.getUser() == null) {
             model.addAttribute("user", new CandidateAccount());
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
@@ -84,7 +97,7 @@ public class ExperienceController {
             return "login";
         }
 
-        CandidateAccount account = Session.getCandidateAccount();
+        CandidateAccount account = candidateAccountService.getUserAccountByEmail(Session.getUser().getEmail()).get();
 
         String success = "";
         String error = "";
@@ -111,7 +124,7 @@ public class ExperienceController {
         model.addAttribute("error", error);
         model.addAttribute("experience", new Experience());
         model.addAttribute("experienceList", experienceList);
-        model.addAttribute("user", Session.getCandidateAccount());
+        model.addAttribute("user", Session.getUser());
 
         return "experience";
     }

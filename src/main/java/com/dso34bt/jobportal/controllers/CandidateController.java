@@ -1,10 +1,7 @@
 package com.dso34bt.jobportal.controllers;
 
 import com.dso34bt.jobportal.model.*;
-import com.dso34bt.jobportal.services.CandidateService;
-import com.dso34bt.jobportal.services.DocumentService;
-import com.dso34bt.jobportal.services.ExperienceService;
-import com.dso34bt.jobportal.services.QualificationService;
+import com.dso34bt.jobportal.services.*;
 import com.dso34bt.jobportal.utilities.Session;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,24 +14,36 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class CandidateController {
     private final CandidateService candidateService;
     private final DocumentService documentService;
+    private final CandidateAccountService candidateAccountService;
 
-    public CandidateController(CandidateService candidateService, DocumentService documentService) {
+    public CandidateController(CandidateService candidateService, DocumentService documentService,
+                               CandidateAccountService candidateAccountService) {
         this.candidateService = candidateService;
         this.documentService = documentService;
+        this.candidateAccountService = candidateAccountService;
     }
 
     @GetMapping("profile")
     public String profile(Model model, @RequestParam(value = "id", required = false) String id){
-        if (Session.getCandidateAccount() == null) {
-            model.addAttribute("user", new CandidateAccount());
+        if (Session.getUser() == null) {
+            model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
+
+        if (Session.getUser().getRole().equalsIgnoreCase("recruiter")){
+            Session.setUser(null);
+            model.addAttribute("user", new User());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You are not authorized to access this page!");
+
+            return "login";
+        }
         Candidate candidate = new Candidate();
 
-        CandidateAccount account = Session.getCandidateAccount();
+        CandidateAccount account = candidateAccountService.getUserAccountByEmail(Session.getUser().getEmail()).get();
 
         String success = "";
         String error = "";
@@ -49,26 +58,26 @@ public class CandidateController {
             }
         }
 
-        if (candidateService.getCandidateByEmail(Session.getCandidateAccount().getEmail()).isPresent()) {
-            candidate = candidateService.getCandidateByEmail(Session.getCandidateAccount().getEmail()).get();
+        if (candidateService.getCandidateByEmail(Session.getUser().getEmail()).isPresent()) {
+            candidate = candidateService.getCandidateByEmail(Session.getUser().getEmail()).get();
         }
         else
-            candidate.setCandidateAccount(Session.getCandidateAccount());
+            candidate.setCandidateAccount(account);
 
 
         model.addAttribute("show", true);
         model.addAttribute("success", success);
         model.addAttribute("error", error);
         model.addAttribute("candidate", candidate);
-        model.addAttribute("user", Session.getCandidateAccount());
+        model.addAttribute("user", Session.getUser());
 
         return "profile";
     }
 
     @PostMapping("profile")
     public String storeProfile(@ModelAttribute Candidate candidate, Model model){
-        if (Session.getCandidateAccount() == null) {
-            model.addAttribute("user", new CandidateAccount());
+        if (Session.getUser() == null) {
+            model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
@@ -77,7 +86,7 @@ public class CandidateController {
         String success = "";
         String error = "";
 
-        candidate.setCandidateAccount(Session.getCandidateAccount());
+        candidate.setCandidateAccount(candidateAccountService.getUserAccountByEmail(Session.getUser().getEmail()).get());
 
         candidate.setId(candidateService.getLastId() + 1);
 
@@ -101,7 +110,7 @@ public class CandidateController {
         model.addAttribute("success", success);
         model.addAttribute("error", error);
         model.addAttribute("candidate", candidate);
-        model.addAttribute("user", Session.getCandidateAccount());
+        model.addAttribute("user", Session.getUser());
 
         return "profile";
     }

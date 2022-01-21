@@ -35,7 +35,7 @@
                 <a class="login" th:href="@{login}">Log In</a>
                 <a class="btn btn-light action-button" role="button" style="background: #ee9919;" th:href="@{signup}">Sign Up</a>
             </span>
-            <div class="dropdown" th:if="${user != null}">
+            <div class="dropdown" th:if="${user != null && user.getRole().equalsIgnoreCase('candidate')}">
                 <button aria-expanded="false" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="username"
                         th:text="${user.email}"
                         type="button">

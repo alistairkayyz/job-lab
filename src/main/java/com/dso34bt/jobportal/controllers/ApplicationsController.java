@@ -3,6 +3,7 @@ package com.dso34bt.jobportal.controllers;
 import com.dso34bt.jobportal.model.Candidate;
 import com.dso34bt.jobportal.model.CandidateAccount;
 import com.dso34bt.jobportal.model.JobPostActivity;
+import com.dso34bt.jobportal.model.User;
 import com.dso34bt.jobportal.services.CandidateService;
 import com.dso34bt.jobportal.services.JobPostActivityService;
 import com.dso34bt.jobportal.services.JobPostService;
@@ -32,20 +33,30 @@ public class ApplicationsController {
 
     @GetMapping("applications")
     public String getApplications(Model model, @RequestParam(value = "id", required = false) String id){
-        if (Session.getCandidateAccount() == null) {
-            model.addAttribute("user", new CandidateAccount());
+        if (Session.getUser() == null) {
+            model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
+
+        if (Session.getUser().getRole().equalsIgnoreCase("recruiter")){
+            Session.setUser(null);
+            model.addAttribute("user", new User());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You are not authorized to access this page!");
+
+            return "login";
+        }
+
         Candidate candidate;
 
-        if (candidateService.candidateExists(Session.getCandidateAccount().getEmail()))
-            candidate = candidateService.getCandidateByEmail(Session.getCandidateAccount().getEmail()).get();
+        if (candidateService.candidateExists(Session.getUser().getEmail()))
+            candidate = candidateService.getCandidateByEmail(Session.getUser().getEmail()).get();
         else {
             model.addAttribute("candidate", new Candidate());
-            model.addAttribute("user", Session.getCandidateAccount());
+            model.addAttribute("user", Session.getUser());
 
             return "profile";
         }
@@ -63,7 +74,7 @@ public class ApplicationsController {
         if (activityService.existsByCandidateId(candidate.getId()))
             applications = activityService.getByCandidateId(candidate.getId());
 
-        model.addAttribute("user", Session.getCandidateAccount());
+        model.addAttribute("user", Session.getUser());
         model.addAttribute("applications", applications);
 
         return "applications";

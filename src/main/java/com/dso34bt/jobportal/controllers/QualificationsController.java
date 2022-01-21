@@ -1,9 +1,7 @@
 package com.dso34bt.jobportal.controllers;
 
-import com.dso34bt.jobportal.model.Candidate;
-import com.dso34bt.jobportal.model.CandidateAccount;
-import com.dso34bt.jobportal.model.Qualifications;
-import com.dso34bt.jobportal.model.Upload;
+import com.dso34bt.jobportal.model.*;
+import com.dso34bt.jobportal.services.CandidateAccountService;
 import com.dso34bt.jobportal.services.CandidateService;
 import com.dso34bt.jobportal.services.DocumentService;
 import com.dso34bt.jobportal.services.QualificationService;
@@ -22,26 +20,39 @@ import java.util.List;
 public class QualificationsController {
     private final QualificationService qualificationService;
     private final DocumentService documentService;
+    private final CandidateAccountService candidateAccountService;
 
-    public QualificationsController(QualificationService qualificationService, DocumentService documentService) {
+    public QualificationsController(QualificationService qualificationService,
+                                    DocumentService documentService,
+                                    CandidateAccountService candidateAccountService) {
         this.qualificationService = qualificationService;
         this.documentService = documentService;
+        this.candidateAccountService = candidateAccountService;
     }
 
     @GetMapping("qualifications")
     public String qualifications(Model model, @RequestParam(value = "id", required = false) String id,
                                  @RequestParam(value = "action", required = false) String action){
-        if (Session.getCandidateAccount() == null) {
-            model.addAttribute("user", new CandidateAccount());
+        if (Session.getUser() == null) {
+            model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
 
+        if (Session.getUser().getRole().equalsIgnoreCase("recruiter")){
+            Session.setUser(null);
+            model.addAttribute("user", new User());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You are not authorized to access this page!");
+
+            return "login";
+        }
+
         List<Qualifications> qualificationsList = new ArrayList<>();
 
-        CandidateAccount account = Session.getCandidateAccount();
+        CandidateAccount account = candidateAccountService.getUserAccountByEmail(Session.getUser().getEmail()).get();
 
         String success = "";
         String error = "";
@@ -62,7 +73,7 @@ public class QualificationsController {
                 model.addAttribute("error", error);
                 model.addAttribute("qualification", qualificationService.findByID(Long.parseLong(id)));
                 model.addAttribute("qualificationsList", qualificationsList);
-                model.addAttribute("user", Session.getCandidateAccount());
+                model.addAttribute("user", Session.getUser());
 
                 return "qualifications";
             }
@@ -73,15 +84,15 @@ public class QualificationsController {
         model.addAttribute("error", error);
         model.addAttribute("qualification", new Qualifications());
         model.addAttribute("qualificationsList", qualificationService.findByCandidateEmail(account.getEmail()));
-        model.addAttribute("user", Session.getCandidateAccount());
+        model.addAttribute("user", Session.getUser());
 
         return "qualifications";
     }
 
     @PostMapping("qualifications")
     public String storeQualifications(@ModelAttribute Qualifications qualifications, Model model){
-        if (Session.getCandidateAccount() == null) {
-            model.addAttribute("user", new CandidateAccount());
+        if (Session.getUser() == null) {
+            model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
@@ -90,7 +101,7 @@ public class QualificationsController {
 
         List<Qualifications> qualificationsList = new ArrayList<>();
 
-        CandidateAccount account = Session.getCandidateAccount();
+        CandidateAccount account = candidateAccountService.getUserAccountByEmail(Session.getUser().getEmail()).get();
 
         String success = "";
         String error = "";
@@ -113,7 +124,7 @@ public class QualificationsController {
         model.addAttribute("error", error);
         model.addAttribute("qualification", new Qualifications());
         model.addAttribute("qualificationsList", qualificationsList);
-        model.addAttribute("user", Session.getCandidateAccount());
+        model.addAttribute("user", Session.getUser());
 
         return "qualifications";
     }

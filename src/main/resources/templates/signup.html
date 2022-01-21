@@ -10,51 +10,62 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,900" rel="stylesheet">
     <link rel="stylesheet" th:href="@{assets/fonts/fontawesome-all.min.css}">
     <link rel="stylesheet" th:href="@{assets/css/Filter.css}">
-    <link rel="stylesheet" th:href="@{assets/css/Login-Form-Clean.css}">
-    <link rel="stylesheet" th:href="@{assets/css/Login-screen.css}">
+    <link rel="stylesheet" th:href="@{assets/css/Login.css}">
     <link rel="stylesheet" th:href="@{assets/css/Navigation-with-Button.css}">
     <link rel="stylesheet" th:href="@{assets/css/Search-Input-Responsive-with-Icon.css}">
     <link rel="stylesheet" th:href="@{assets/css/styles.css}">
 </head>
 
-<body style="font-family: Rubik, sans-serif;color: #d6e0f0;background: #d6e0f0;">
-<section class="d-lg-flex align-items-lg-center login-form login-section" style="height: 100vh;color: rgb(0,0,0);">
-    <div class="main">
-        <input aria-hidden="true" id="chk" type="checkbox">
-
-        <div class="signup">
-            <div th:if="${!success.isEmpty()}">
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <span th:text="${success}"></span>
-                    <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
-                </div>
+<body style="font-family: Rubik, sans-serif;color: #d6e0f0;background: linear-gradient(to right, #2b5876, #4e4376);">
+<div class=" container" style="width: 100%; ">
+    <div class="row p-5 mt-5 mb-5 shadow-lg"
+         style="background: #2b5876;border-radius: 12px; max-width: 400px;min-height: 50vh; margin: auto;">
+        <div th:if="${!success.isEmpty()}">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
             </div>
-
-            <div th:if="${!error.isEmpty()}">
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <span th:text="${error}"></span>
-                    <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
-                </div>
-            </div>
-            <form class="text-center" method="post" th:action="@{signup}" th:object="${user}">
-                <label aria-hidden="true" class="login-label" for="chk">Sign up</label>
-                <input class="login-input" name="email" placeholder="Email" required="" th:field="*{email}"
-                       type="email">
-                <input class="login-input" name="password" placeholder="Password" required="" th:field="*{password}"
-                       type="password">
-                <input class="login-input" name="confirm-password" placeholder="Confirm Password" required=""
-                       th:field="*{confirmPassword}" type="password">
-                <button class="login-button" type="submit">Sign up</button>
-                <div class="text-white">Or</div>
-                <div>
-                    <a class="signup-button" th:href="@{login}">Login</a>
-                </div>
-            </form>
         </div>
+
+        <div th:if="${!error.isEmpty()}">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+        </div>
+        <form class="text-center text-dark" method="post" th:action="@{signup}" th:object="${candidate}">
+            <div>
+                <h2 class="p-0 mb-5  text-center text-white">Candidate Signup</h2>
+            </div>
+            <div class="form-floating">
+                <input class="form-control my-3" id="email" name="email" placeholder="Email" required
+                       th:field="*{email}"
+                       type="email">
+                <label for="email">Email address</label>
+            </div>
+            <div class="form-floating">
+                <input class="form-control my-3" id="password" name="password" placeholder="Password" required=""
+                       th:field="*{password}"
+                       type="password">
+                <label for="password">Password</label>
+            </div>
+            <div class="form-floating">
+                <input class="form-control my-3" id="confirmPassword" name="confirmPassword"
+                       placeholder="Confirm Password" required="" th:field="*{confirmPassword}"
+                       type="password">
+                <label for="confirmPassword">Confirm Password</label>
+            </div>
+
+            <button class="btn btn-dark w-100 my-3" type="submit">Signup</button>
+
+            <div class="text-white ">Or</div>
+            <a class="btn btn-outline-light w-100 my-3" th:href="@{login}">Login</a>
+        </form>
     </div>
-</section>
+</div>
 <script th:src="@{assets/bootstrap/js/bootstrap.min.js}"></script>
 <script th:src="@{assets/js/main.js}"></script>
 </body>
+
 
 </html>

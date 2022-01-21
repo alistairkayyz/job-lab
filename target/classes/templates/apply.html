@@ -35,7 +35,7 @@
                 <a class="login" th:href="@{login}">Log In</a>
                 <a class="btn btn-light action-button" role="button" style="background: #ee9919;" th:href="@{signup}">Sign Up</a>
             </span>
-            <div class="dropdown" th:if="${user != null}">
+            <div class="dropdown" th:if="${user != null && user.getRole().equalsIgnoreCase('candidate')}">
                 <button aria-expanded="false" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="username"
                         th:text="${user.email}"
                         type="button">
@@ -81,8 +81,12 @@
                                 style="font-size: 18px;" th:text="'Location: ' + ${jobPost.location}">Location: Pretoria, Johannesburg
                             </h6>
                             <div class="mb-4" style="color: var(--bs-red);">
-                                <span class="me-4" th:text="'Posted on: ' + ${jobPost.createdDate}">Posted no: 2021-11-02</span>
+                                <span class="me-4" th:text="'Posted by: ' + ${jobPost.recruiter.companyName}">Facebook</span>
                                 <span th:text="'Closing date: ' + ${jobPost.closingDate}">Closing date: 2021-11-25 15:00:00</span>
+                            </div>
+
+                            <div class="mb-4">
+                                <a class="link-primary" th:href="${jobPost.recruiter.getWebsiteLink()}" th:target="_blank">Visit our website <i class="fas fa-external-link-alt"></i></a>
                             </div>
                             <article class="ms-3 mb-4">
                                 <h4>Purpose</h4>

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface JobPostRepository extends JpaRepository<JobPost,Long> {
-    List<JobPost> findByStaffId(long id);
+    List<JobPost> findByRecruiterId(long id);
 
     Optional<JobPost> findByTitle(String title);
 

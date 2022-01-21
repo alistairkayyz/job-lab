@@ -15,7 +15,6 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 public class JobsController {
@@ -24,22 +23,23 @@ public class JobsController {
     private final DocumentService documentService;
     private final JobPostService jobPostService;
     private final JobPostActivityService activityService;
-    private final StaffService staffService;
+    private final RecruiterService recruiterService;
 
     public JobsController(CandidateAccountService candidateAccountService, CandidateService candidateService,
                           DocumentService documentService, JobPostService jobPostService,
-                          JobPostActivityService activityService, StaffService staffService) {
+                          JobPostActivityService activityService, RecruiterService recruiterService) {
         this.candidateAccountService = candidateAccountService;
         this.candidateService = candidateService;
         this.documentService = documentService;
         this.jobPostService = jobPostService;
         this.activityService = activityService;
-        this.staffService = staffService;
+        this.recruiterService = recruiterService;
     }
 
     @GetMapping("/")
     public String home(Model model) {
-        model.addAttribute("user", Session.getCandidateAccount());
+
+        model.addAttribute("user", Session.getUser());
 
         if (!jobPostService.getJobPosts().isEmpty())
             model.addAttribute("jobPosts", jobPostService.getJobPosts());
@@ -52,10 +52,10 @@ public class JobsController {
     @GetMapping("logout")
     public String logout(Model model) {
 
-        if (Session.getCandidateAccount() != null){
-            Session.setCandidateAccount(null);
+        if (Session.getUser() != null && Session.getUser().getRole().equalsIgnoreCase("candidate")) {
+            Session.setUser(null);
 
-            model.addAttribute("user", Session.getCandidateAccount());
+            model.addAttribute("user", Session.getUser());
 
             if (!jobPostService.getJobPosts().isEmpty())
                 model.addAttribute("jobPosts", jobPostService.getJobPosts());
@@ -65,10 +65,13 @@ public class JobsController {
             return "index";
         }
 
-        if (Session.getStaffAccount() != null){
-            Session.setStaffAccount(null);
-            model.addAttribute("user", new StaffAccount());
-            return "login-staff";
+        if (Session.getUser() != null && !Session.getUser().getRole().equalsIgnoreCase("candidate")) {
+            Session.setUser(null);
+            model.addAttribute("user", new User());
+            model.addAttribute("success", "You have successfully signed out");
+            model.addAttribute("error", "");
+
+            return "login";
         }
 
         model.addAttribute("user", null);
@@ -83,7 +86,7 @@ public class JobsController {
 
     @GetMapping("index")
     public String index(Model model) {
-        model.addAttribute("user", Session.getCandidateAccount());
+        model.addAttribute("user", Session.getUser());
 
         if (!jobPostService.getJobPosts().isEmpty())
             model.addAttribute("jobPosts", jobPostService.getJobPosts());
@@ -95,27 +98,48 @@ public class JobsController {
 
     @GetMapping("thanks")
     public String thanks(Model model) {
-        if (Session.getCandidateAccount() == null) {
-            model.addAttribute("user", new CandidateAccount());
+        if (Session.getUser() == null) {
+            model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
 
-        model.addAttribute("user", Session.getCandidateAccount());
+        if (Session.getUser().getRole().equalsIgnoreCase("recruiter")) {
+            Session.setUser(null);
+            model.addAttribute("user", new User());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You are not authorized to access this page!");
+
+            return "login";
+        }
+
+        model.addAttribute("user", Session.getUser());
         return "thanks";
     }
 
     @GetMapping("job-post")
     public String jobPost(Model model, @RequestParam(value = "id", required = false) String id) {
-        if (Session.getStaffAccount() == null) {
-            model.addAttribute("user", new StaffAccount());
+        if (Session.getUser() == null) {
+            model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
-            return "login-staff";
+            return "login";
         }
+
+        if (!Session.getUser().getRole().equalsIgnoreCase("recruiter")) {
+            Session.setUser(null);
+            model.addAttribute("user", new User());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You are not authorized to access this page!");
+
+            return "login";
+        }
+
+        String success = "";
+        String error = "";
 
         if (id != null)
             model.addAttribute("jobPost", jobPostService.getJobPostByID(Long.parseLong(id)));
@@ -123,100 +147,161 @@ public class JobsController {
             model.addAttribute("jobPost", new JobPost());
         }
 
-        model.addAttribute("user", Session.getStaffAccount());
+        model.addAttribute("error", error);
+        model.addAttribute("success", success);
+        model.addAttribute("user", Session.getUser());
         return "job-post";
     }
 
     @PostMapping("job-post")
     public String saveJob(@ModelAttribute JobPost jobPost, Model model) {
-        if (Session.getStaffAccount() == null) {
-            model.addAttribute("user", new StaffAccount());
+        if (Session.getUser() == null) {
+            model.addAttribute("user", new Recruiter());
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
-            return "login-staff";
+            return "recruiter-signup";
         }
+
+        String success = "";
+        String error = "";
 
         if (jobPost.getId() != null && jobPostService.getJobPostByID(jobPost.getId()).isPresent()) {
             System.out.println("*********Present");
             LocalDateTime localDateTime = LocalDateTime.parse(jobPost.getTimestamp());
             jobPost.setClosingDate(Timestamp.valueOf(localDateTime));
             jobPost.setCreatedDate(Date.valueOf(LocalDate.now()));
-            jobPostService.saveJobPost(jobPost);
-        }
-        else {
 
+            try {
+                if (jobPostService.saveJobPost(jobPost))
+                    success = "Successfully updated this Job Post";
+                else
+                    error = "Failed to update this job post";
+            } catch (Exception exception) {
+                error = exception.getMessage();
+            }
+        } else {
             LocalDateTime localDateTime = LocalDateTime.parse(jobPost.getTimestamp());
             jobPost.setId(jobPostService.getLastId() + 1);
             jobPost.setClosingDate(Timestamp.valueOf(localDateTime));
             jobPost.setCreatedDate(Date.valueOf(LocalDate.now()));
-            jobPost.setStaff(staffService.getStaffByEmail(Session.getStaffAccount().getEmail()).get());
+            jobPost.setRecruiter(recruiterService.getRecruiterByEmail(Session.getUser().getEmail()).get());
 
-            jobPostService.saveJobPost(jobPost);
+            try {
+                if (jobPostService.saveJobPost(jobPost))
+                    success = "Successfully saved this Job Post";
+                else
+                    error = "Failed to save this job post";
+            } catch (Exception exception) {
+                error = exception.getMessage();
+            }
         }
-        model.addAttribute("jobPost", jobPost);
 
-        model.addAttribute("user", Session.getStaffAccount());
+        model.addAttribute("error", error);
+        model.addAttribute("success", success);
+        model.addAttribute("jobPost", jobPost);
+        model.addAttribute("user", Session.getUser());
+
         return "job-post";
     }
 
     @GetMapping("view-jobs")
     public String viewJobs(Model model, @RequestParam(value = "id", required = false) String id) {
-        if (Session.getStaffAccount() == null) {
-            model.addAttribute("user", new StaffAccount());
-            model.addAttribute("success", "");
-            model.addAttribute("error", "You must login first!");
-
-            return "login-staff";
-        }
-        if (id != null && jobPostService.deleteJobPostById(Long.parseLong(id)))
-            System.out.println("deleted");
-
-        model.addAttribute("jobs", jobPostService.getJobPosts());
-
-        model.addAttribute("user", Session.getStaffAccount());
-        return "view-jobs";
-    }
-
-    @GetMapping("job")
-    public String apply(Model model, @RequestParam(value = "id") String id){
-        if (Session.getCandidateAccount() == null) {
-            model.addAttribute("user", new CandidateAccount());
+        if (Session.getUser() == null) {
+            model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
 
-        CandidateAccount account = Session.getCandidateAccount();
+        if (!Session.getUser().getRole().equalsIgnoreCase("recruiter")) {
+            Session.setUser(null);
+            model.addAttribute("user", new User());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You are not authorized to access this page!");
 
-        if (!documentService.existsByCandidateEmailAndTitle(account.getEmail(), "CV")){
+            return "login";
+        }
+        String success = "";
+        String error = "";
+
+        if (id != null) {
+            JobPost jobPost = jobPostService.getJobPostByID(Long.parseLong(id)).get();
+
+            if (jobPostService.deleteJobPostById(Long.parseLong(id)))
+                success = "Successfully deleted " + jobPost.getTitle();
+            else
+                error = "Failed to delete " + jobPost.getTitle();
+        }
+
+        Recruiter recruiter = recruiterService.getRecruiterByEmail(Session.getUser().getEmail()).get();
+
+        model.addAttribute("error", error);
+        model.addAttribute("success", success);
+        model.addAttribute("jobs", jobPostService.getByRecruiterId(recruiter.getId()));
+        model.addAttribute("user", Session.getUser());
+
+        return "view-jobs";
+    }
+
+    @GetMapping("job")
+    public String apply(Model model, @RequestParam(value = "id") String id) {
+        if (Session.getUser() == null) {
+            model.addAttribute("user", new User());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
+
+            return "login";
+        }
+
+        if (Session.getUser().getRole().equalsIgnoreCase("recruiter")) {
+            Session.setUser(null);
+            model.addAttribute("user", new User());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You are not authorized to access this page!");
+
+            return "login";
+        }
+
+        CandidateAccount account = candidateAccountService.getUserAccountByEmail(Session.getUser().getEmail()).get();
+
+        if (!documentService.existsByCandidateEmailAndTitle(account.getEmail(), "CV")) {
             model.addAttribute("show", false);
-            model.addAttribute("user", Session.getCandidateAccount());
+            model.addAttribute("user", Session.getUser());
 
             return "apply";
         }
 
         JobPost jobPost = jobPostService.getJobPostByID(Long.parseLong(id)).orElse(new JobPost());
 
-        Candidate candidate = candidateService.getCandidateByEmail(Session.getCandidateAccount().getEmail()).get();
+        Candidate candidate = candidateService.getCandidateByEmail(Session.getUser().getEmail()).get();
 
         boolean status = activityService.applied(jobPost.getId(), candidate.getId());
 
         model.addAttribute("show", true);
         model.addAttribute("status", status);
         model.addAttribute("jobPost", jobPost);
-        model.addAttribute("user", Session.getCandidateAccount());
+        model.addAttribute("user", Session.getUser());
 
         return "apply";
     }
 
     @GetMapping("apply")
-    public String applying(Model model, @RequestParam(value = "id") String id){
-        if (Session.getCandidateAccount() == null) {
-            model.addAttribute("user", new CandidateAccount());
+    public String applying(Model model, @RequestParam(value = "id") String id) {
+        if (Session.getUser() == null) {
+            model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
+
+            return "login";
+        }
+
+        if (Session.getUser().getRole().equalsIgnoreCase("recruiter")) {
+            Session.setUser(null);
+            model.addAttribute("user", new User());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You are not authorized to access this page!");
 
             return "login";
         }
@@ -224,19 +309,19 @@ public class JobsController {
         if (id != null) {
             JobPostActivity jobPostActivity = new JobPostActivity();
             jobPostActivity.setJobPost(jobPostService.getJobPostByID(Long.parseLong(id)).get());
-            jobPostActivity.setCandidate(candidateService.getCandidateByEmail(Session.getCandidateAccount().getEmail()).get());
+            jobPostActivity.setCandidate(candidateService.getCandidateByEmail(Session.getUser().getEmail()).get());
             jobPostActivity.setDate(Date.valueOf(LocalDate.now()));
             jobPostActivity.setStatus("IN PROGRESS");
 
-            if (activityService.saveJobPostActivity(jobPostActivity)){
+            if (activityService.saveJobPostActivity(jobPostActivity)) {
                 System.out.println("Applied for: " + jobPostService.getJobPostByID(Long.parseLong(id)).get().getTitle());
 
-                model.addAttribute("user", Session.getCandidateAccount());
+                model.addAttribute("user", Session.getUser());
 
                 return "thanks";
             }
 
-            model.addAttribute("user", Session.getCandidateAccount());
+            model.addAttribute("user", Session.getUser());
 
             JobPost jobPost = jobPostService.getJobPostByID(Long.parseLong(id)).get();
             model.addAttribute("jobPost", jobPost);
@@ -244,7 +329,7 @@ public class JobsController {
             return "apply";
         }
 
-        model.addAttribute("user", Session.getCandidateAccount());
+        model.addAttribute("user", Session.getUser());
         return "index";
     }
 }

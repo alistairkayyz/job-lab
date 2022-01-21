@@ -65,8 +65,8 @@ public class JobPost implements Serializable {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "staff_id", referencedColumnName = "id")
-    private Staff staff;
+    @JoinColumn(name = "recruiter_id", referencedColumnName = "id")
+    private Recruiter recruiter;
 
     public Long getId() {
         return id;
@@ -172,16 +172,16 @@ public class JobPost implements Serializable {
         this.timestamp = timestamp;
     }
 
-    public Staff getStaff() {
-        return staff;
+    public Recruiter getRecruiter() {
+        return recruiter;
     }
 
-    public void setStaff(Staff staff) {
-        this.staff = staff;
+    public void setRecruiter(Recruiter recruiter) {
+        this.recruiter = recruiter;
     }
 
     public List<String> getQualificationList() {
-        StringTokenizer tokenizer = new StringTokenizer(qualification, ",");
+        StringTokenizer tokenizer = new StringTokenizer(qualification, ";");
 
         List<String> list = new ArrayList<>();
         while (tokenizer.hasMoreTokens()){
@@ -192,7 +192,7 @@ public class JobPost implements Serializable {
     }
 
     public List<String> getRequirementsList() {
-        StringTokenizer tokenizer = new StringTokenizer(requirements, ",");
+        StringTokenizer tokenizer = new StringTokenizer(requirements, ";");
 
         List<String> list = new ArrayList<>();
         while (tokenizer.hasMoreTokens()){
@@ -203,7 +203,7 @@ public class JobPost implements Serializable {
     }
 
     public List<String> getResponsibilitiesList() {
-        StringTokenizer tokenizer = new StringTokenizer(responsibilities, ",");
+        StringTokenizer tokenizer = new StringTokenizer(responsibilities, ";");
 
         List<String> list = new ArrayList<>();
         while (tokenizer.hasMoreTokens()){
@@ -228,7 +228,7 @@ public class JobPost implements Serializable {
                 ", createdDate=" + createdDate +
                 ", closingDate=" + closingDate +
                 ", assessmentRequired=" + assessmentRequired +
-                ", staff=" + staff +
+                ", recruiter=" + recruiter +
                 '}';
     }
 }
