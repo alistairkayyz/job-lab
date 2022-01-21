@@ -171,6 +171,7 @@ public class JobsController {
             LocalDateTime localDateTime = LocalDateTime.parse(jobPost.getTimestamp());
             jobPost.setClosingDate(Timestamp.valueOf(localDateTime));
             jobPost.setCreatedDate(Date.valueOf(LocalDate.now()));
+            jobPost.setRecruiter(recruiterService.getRecruiterByEmail(Session.getUser().getEmail()).get());
 
             try {
                 if (jobPostService.saveJobPost(jobPost))

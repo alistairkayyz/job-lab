@@ -26,8 +26,8 @@
         <div class="collapse navbar-collapse" id="navcol-1">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link " th:href="@{job-post}">New Job</a></li>
-                <li class="nav-item"><a class="nav-link active" th:href="@{view-jobs}">View Jobs</a></li>
-                <li class="nav-item" ><a class="nav-link" th:href="@{applicants}">Applicants</a></li>
+                <li class="nav-item"><a class="nav-link " th:href="@{view-jobs}">View Jobs</a></li>
+                <li class="nav-item" ><a class="nav-link active" th:href="@{applicants}">Applicants</a></li>
             </ul>
             <span class="navbar-text actions" th:if="${user == null}">
                     <a class="login" th:href="@{login}">Log In</a>
@@ -107,7 +107,7 @@
                         <td th:text="${applicant.jobPost.title}">Junior Java Developer</td>
                         <td>
                             <div class="btn-group">
-                                <a class="btn btn-primary" th:href="@{candidate(action='candidate',id=${applicant.candidate.id})}">View CV</a>
+                                <a class="btn btn-primary" th:href="@{review(action='candidate',id=${applicant.candidate.id})}">View CV</a>
                             </div>
                         </td>
                     </tr>

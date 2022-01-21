@@ -79,7 +79,7 @@
                 <div class="row g-3 px-md-3">
                     <div class="col-sm-6 col-md-4">
                         <label class="form-label" for="title">Title</label>
-                        <select class="form-select" id="title" name="title" th:field="*{title}">
+                        <select class="form-select" id="title" name="title" required th:field="*{title}">
                             <option disabled selected value="default">Open this select menu</option>
                             <option value="Mr">Mr</option>
                             <option value="Mrs">Mrs</option>
@@ -93,9 +93,10 @@
                         <input class="form-control" id="firstname" name="firstname" placeholder="Ex. John" required
                                th:field="*{first_name}" type="text"/>
                     </div>
-                    <div class="col-sm-6 col-md-4"><label class="form-label" for="middlename">Middle
-                        name</label><input
-                            class="form-control" id="middlename" name="middlename" placeholder="Ex. Craig"
+                    <div class="col-sm-6 col-md-4">
+                        <label class="form-label" for="middlename">Middle
+                        name</label>
+                        <input class="form-control" id="middlename" name="middlename" placeholder="Ex. Craig"
                             required th:field="*{middle_name}"
                             type="text"/></div>
                     <div class="col-sm-6 col-md-4"><label class="form-label" for="lastname">Last name</label><input
@@ -163,7 +164,7 @@
                         </select></div>
                     <div class="col-sm-6 col-md-4"><label class="form-label" for="telephone">Telephone</label><input
                             class="form-control" id="telephone" name="telephone" placeholder="Ex. 0731234567"
-                            required th:field="*{telephone}"
+                             th:field="*{telephone}"
                             type="tel"/></div>
                     <div class="col-sm-6 col-md-4"><label class="form-label" for="cellphone">Cellphone</label><input
                             class="form-control" id="cellphone" name="cellphone" placeholder="Ex. 0731234567"
