@@ -136,8 +136,8 @@
                             </article>
                         </div>
                     </div>
-                    <div class="col-12" th:if="${status == false}">
-                        <a class="btn btn-job stretched-link" th:href="@{apply(id=${jobPost.id})}">Apply</a>
+                    <div class="col-12 ms-5 text-center" th:if="${status == false}">
+                        <a aria-current="page" class="btn btn-pagination w-25" th:href="@{apply(id=${jobPost.id})}">Apply</a>
                     </div>
                 </div>
             </div>
