@@ -42,6 +42,9 @@ public class CandidateService {
     public Optional<Candidate> getCandidateByEmail(String email){
         return repository.findByCandidateAccountEmail(email);
     }
+    public Optional<Candidate> findById(long id){
+        return repository.findById(id);
+    }
 
     public long getLastId(){
         if (repository.lastId() == null)
