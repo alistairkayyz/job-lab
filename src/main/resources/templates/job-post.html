@@ -23,16 +23,19 @@
         <div class="text-center opacity-100">Logged in as: <span th:text="${user.role}">Candidate</span></div>
     </div>
 </div>
-<nav class="navbar navbar-light navbar-expand-md navigation-clean-button py-0" style="background: #d6e0f0;">
-    <div class="container"><a class="navbar-brand d-flex" disabled th:href="@{index}"><i class="fab fa-confluence fs-2"></i><span
-            class="ms-2">JobLab.</span></a>
+<nav class="navbar navbar-light navbar-expand-md navigation-clean-button" style="background: #d6e0f0;">
+    <div class="container">
+        <a class="navbar-brand d-flex" th:href="@{index}">
+            <i class="fab fa-confluence fs-2"></i>
+            <span class="ms-2">JobLab.</span>
+        </a>
         <button class="navbar-toggler" data-bs-target="#navcol-1" data-bs-toggle="collapse"><span
                 class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navcol-1">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link active" th:href="@{job-post}">New Job</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{view-jobs}">View Jobs</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{applicants}">Applicants</a></li>
+                <li class="nav-item"><a class="nav-link " th:href="@{view-jobs}">View Jobs</a></li>
+                <li class="nav-item" ><a class="nav-link " th:href="@{applicants}">Applicants</a></li>
             </ul>
             <span class="navbar-text actions" th:if="${user == null}">
                     <a class="login" th:href="@{login}">Log In</a>
@@ -40,12 +43,13 @@
                        th:href="@{recruiter-signup}">Signup</a>
                 </span>
             <div class="dropdown" th:if="${user != null}">
-                <button aria-expanded="false" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="username"
-                        th:text="${user.email}"
+                <button aria-expanded="false" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="username" th:text="${user.email}"
                         type="button">
                     email@domain.com
                 </button>
                 <ul aria-labelledby="username" class="dropdown-menu">
+                    <li><a class="dropdown-item" th:href="@{recruiter-settings}">Account Settings</a></li>
+                    <hr>
                     <li><a class="dropdown-item" th:href="@{logout}">Logout</a></li>
                 </ul>
             </div>
@@ -53,9 +57,6 @@
     </div>
 </nav>
 <div class="container">
-    <header class="h-100 mb-4">
-        <h2>Post New Job</h2>
-    </header>
     <div class="row p-3 mb-5" style="background: #fff9f4;border-radius: 12px;">
         <div th:if="${!success.isEmpty()}">
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -74,7 +75,7 @@
             <input th:field="*{id}" th:name="id" th:type="hidden">
             <div class="pt-3">
                 <div>
-                    <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Job Post Details</h5>
+                    <h5 class="p-0 mb-3 ps-3" style="border-left: 12px solid #ff7c1f;">Post a new Job</h5>
                 </div>
                 <div class=" pt-3 pt-0 pb-3">
                     <div class="form-floating col-12 mb-3">

@@ -23,8 +23,8 @@
         <div class="text-center opacity-100">Logged in as: <span th:text="${user.role}">Candidate</span></div>
     </div>
 </div>
-<nav class="navbar navbar-light navbar-expand-md navigation-clean-button py-0" style="background: #d6e0f0;">
-    <div class="container">
+<nav class="navbar navbar-light navbar-expand-md navigation-clean-button" style="background: #d6e0f0;">
+    <div class="container" th:if="${user == null}">
         <a class="navbar-brand d-flex" th:href="@{index}">
             <i class="fab fa-confluence fs-2"></i>
             <span class="ms-2">JobLab.</span>
@@ -36,9 +36,8 @@
                 <li class="nav-item"></li>
                 <li class="nav-item"></li>
             </ul>
-            <span class="navbar-text actions" th:if="${user == null}">
-                <a class="login" th:href="@{login}">Log In</a>
-                <a class="btn btn-light action-button" role="button" style="background: #ee9919;" th:href="@{signup}">Sign Up</a>
+            <span class="navbar-text " th:if="${user == null}">
+                <a class="login login btn btn-warning text-white px-5" th:href="@{login}">Log In</a>
             </span>
             <div class="dropdown" th:if="${user != null && user.getRole().equalsIgnoreCase('candidate')}">
                 <button aria-expanded="false" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="username"
@@ -53,6 +52,69 @@
                     <li><a class="dropdown-item" th:href="@{files}">Files</a></li>
                     <hr>
                     <li><a class="dropdown-item" th:href="@{applications}">Applications</a></li>
+                    <hr>
+                    <li><a class="dropdown-item" th:href="@{logout}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container" th:if="${user != null && user.role.equalsIgnoreCase('candidate')}">
+        <a class="navbar-brand d-flex" th:href="@{index}">
+            <i class="fab fa-confluence fs-2"></i>
+            <span class="ms-2">JobLab.</span>
+        </a>
+        <button class="navbar-toggler" data-bs-target="#navcol-1" data-bs-toggle="collapse"><span
+                class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"></li>
+                <li class="nav-item"></li>
+            </ul>
+            <span class="navbar-text " th:if="${user == null}">
+                <a class="login login btn btn-warning text-white px-5" th:href="@{login}">Log In</a>
+            </span>
+            <div class="dropdown" th:if="${user != null && user.getRole().equalsIgnoreCase('candidate')}">
+                <button aria-expanded="false" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="username"
+                        th:text="${user.email}"
+                        type="button">
+                    email@domain.com
+                </button>
+                <ul aria-labelledby="username" class="dropdown-menu">
+                    <li><a class="dropdown-item" th:href="@{profile}">Profile</a></li>
+                    <li><a class="dropdown-item" th:href="@{qualifications}">Qualifications</a></li>
+                    <li><a class="dropdown-item" th:href="@{experience}">Experience</a></li>
+                    <li><a class="dropdown-item" th:href="@{files}">Files</a></li>
+                    <hr>
+                    <li><a class="dropdown-item" th:href="@{applications}">Applications</a></li>
+                    <hr>
+                    <li><a class="dropdown-item" th:href="@{logout}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container" th:if="${user != null && !user.role.equalsIgnoreCase('candidate')}">
+        <a class="navbar-brand d-flex" th:href="@{index}">
+            <i class="fab fa-confluence fs-2"></i>
+            <span class="ms-2">JobLab.</span>
+        </a>
+        <button class="navbar-toggler" data-bs-target="#navcol-1" data-bs-toggle="collapse"><span
+                class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link " th:href="@{job-post}">New Job</a></li>
+                <li class="nav-item"><a class="nav-link " th:href="@{view-jobs}">View Jobs</a></li>
+                <li class="nav-item" ><a class="nav-link active" th:href="@{applicants}">Applicants</a></li>
+            </ul>
+            <span class="navbar-text " th:if="${user == null}">
+                <a class="login login btn btn-warning text-white px-5" th:href="@{login}">Log In</a>
+            </span>
+            <div class="dropdown" th:if="${user != null}">
+                <button aria-expanded="false" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="username" th:text="${user.email}"
+                        type="button">
+                    email@domain.com
+                </button>
+                <ul aria-labelledby="username" class="dropdown-menu">
+                    <li><a class="dropdown-item" th:href="@{recruiter-settings}">Account Settings</a></li>
                     <hr>
                     <li><a class="dropdown-item" th:href="@{logout}">Logout</a></li>
                 </ul>

@@ -59,32 +59,8 @@ public class JobsController {
 
     @GetMapping("logout")
     public String logout(Model model, HttpServletRequest request, HttpSession session) {
-        @SuppressWarnings("unchecked")
-        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
-
-        User user = userSessions.get(userSessions.size() - 1);
-
         // destroy the session
         request.getSession().invalidate();
-
-        if (user != null && user.getRole().equalsIgnoreCase("candidate")) {
-            model.addAttribute("user", null);
-
-            if (!jobPostService.getJobPosts().isEmpty())
-                model.addAttribute("jobPosts", jobPostService.getJobPosts());
-            else
-                model.addAttribute("jobPosts", new ArrayList<>());
-
-            return "index";
-        }
-
-        if (user != null && !user.getRole().equalsIgnoreCase("candidate")) {
-            model.addAttribute("user", new User());
-            model.addAttribute("success", "You have successfully signed out");
-            model.addAttribute("error", "");
-
-            return "login";
-        }
 
         model.addAttribute("user", new User());
 

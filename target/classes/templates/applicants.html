@@ -23,9 +23,12 @@
         <div class="text-center opacity-100">Logged in as: <span th:text="${user.role}">Candidate</span></div>
     </div>
 </div>
-<nav class="navbar navbar-light navbar-expand-md navigation-clean-button py-0" style="background: #d6e0f0;">
-    <div class="container"><a class="navbar-brand d-flex" th:href="@{index}"><i class="fab fa-confluence fs-2"></i><span
-            class="ms-2">JobLab.</span></a>
+<nav class="navbar navbar-light navbar-expand-md navigation-clean-button" style="background: #d6e0f0;">
+    <div class="container">
+        <a class="navbar-brand d-flex" th:href="@{index}">
+            <i class="fab fa-confluence fs-2"></i>
+            <span class="ms-2">JobLab.</span>
+        </a>
         <button class="navbar-toggler" data-bs-target="#navcol-1" data-bs-toggle="collapse"><span
                 class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navcol-1">
@@ -45,6 +48,8 @@
                     email@domain.com
                 </button>
                 <ul aria-labelledby="username" class="dropdown-menu">
+                    <li><a class="dropdown-item" th:href="@{recruiter-settings}">Account Settings</a></li>
+                    <hr>
                     <li><a class="dropdown-item" th:href="@{logout}">Logout</a></li>
                 </ul>
             </div>
