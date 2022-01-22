@@ -40,7 +40,7 @@ public class RequestsService {
         return repository.findTitlesByCandidateIdAndStatus(id, status);
     }
 
-    public List<Requests> findByCandidateIdAndStatu(long id, String status){
+    public List<Requests> findByCandidateIdAndStatus(long id, String status){
         return repository.findByCandidateIdAndStatus(id, status);
     }
 

@@ -42,16 +42,20 @@ public class FilesController {
     private final ExperienceService experienceService;
     private final QualificationService qualificationService;
     private final CandidateAccountService candidateAccountService;
+    private final RequestsService requestsService;
+    private final RecruiterEmailsService recruiterEmailsService;
 
     public FilesController(DocumentService documentService, CandidateService candidateService,
-                           ExperienceService experienceService,
-                           QualificationService qualificationService,
-                           CandidateAccountService candidateAccountService) {
+                           ExperienceService experienceService, QualificationService qualificationService,
+                           CandidateAccountService candidateAccountService, RequestsService requestsService,
+                           RecruiterEmailsService recruiterEmailsService) {
         this.documentService = documentService;
         this.candidateService = candidateService;
         this.experienceService = experienceService;
         this.qualificationService = qualificationService;
         this.candidateAccountService = candidateAccountService;
+        this.requestsService = requestsService;
+        this.recruiterEmailsService = recruiterEmailsService;
     }
 
     @GetMapping("files")
