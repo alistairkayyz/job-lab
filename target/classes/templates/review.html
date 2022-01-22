@@ -270,7 +270,17 @@
                         <td>Missing</td>
                         <td>
                             <div class="btn-group">
-                                <a class="btn btn-primary" th:href="@{review(action='request',id=${file})}">Request</a>
+                                <a class="btn btn-primary" th:href="@{review(action='request',file=${file},id=${candidate.id})}">Request</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:each="request : ${requests}">
+                        <th th:text="${request}">CV</th>
+                        <td>N/A</td>
+                        <td>Missing</td>
+                        <td>
+                            <div class="btn-group">
+                                <a class="btn btn-outline-primary disabled" th:href="@{review(action='request')}">Requested</a>
                             </div>
                         </td>
                     </tr>
