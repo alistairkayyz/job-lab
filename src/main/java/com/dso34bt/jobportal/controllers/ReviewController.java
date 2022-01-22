@@ -136,7 +136,7 @@ public class ReviewController {
                         CandidateEmails candidateEmail = new CandidateEmails();
                         candidateEmail.setId(candidateEmailsService.getLastId() + 1);
                         candidateEmail.setCandidateAccount(candidate.getCandidateAccount());
-                        candidateEmail.setSenderEmail("alistairdummy101@gmail.com");
+                        candidateEmail.setSenderEmail(candidate.getCandidateAccount().getEmail());
                         candidateEmail.setMessage(composedMessage);
                         candidateEmail.setSubject(subject);
                         candidateEmail.setTimeSent(Timestamp.valueOf(LocalDateTime.now()));
@@ -145,7 +145,7 @@ public class ReviewController {
                             System.out.println("Saved the email that was sent");
 
                         if (requestsService.save(newRequest))
-                            success = "Successfully requested " + candidate.getFirst_name() + " to upload the require document";
+                            success = "Successfully requested " + candidate.getFirst_name() + " to upload the required document";
                         else
                             error = "Failed to save the request!";
                     }
