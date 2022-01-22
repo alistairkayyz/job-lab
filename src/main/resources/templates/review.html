@@ -18,7 +18,12 @@
 </head>
 
 <body style="font-family: Rubik, sans-serif;background: #d6e0f0;">
-<nav class="navbar navbar-light navbar-expand-md navigation-clean-button" style="background: #d6e0f0;">
+<div class="sticky-top opacity-50" style="background: #bcd2f5;" th:if="${user != null}">
+    <div class="container">
+        <div class="text-center opacity-100">Logged in as: <span th:text="${user.role}">Candidate</span></div>
+    </div>
+</div>
+<nav class="navbar navbar-light navbar-expand-md navigation-clean-button py-0" style="background: #d6e0f0;">
     <div class="container"><a class="navbar-brand d-flex" th:href="@{index}"><i class="fab fa-confluence fs-2"></i><span
             class="ms-2">JobLab.</span></a>
         <button class="navbar-toggler" data-bs-target="#navcol-1" data-bs-toggle="collapse"><span
