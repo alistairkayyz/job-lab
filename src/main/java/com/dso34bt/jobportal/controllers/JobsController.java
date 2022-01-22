@@ -2,7 +2,6 @@ package com.dso34bt.jobportal.controllers;
 
 import com.dso34bt.jobportal.model.*;
 import com.dso34bt.jobportal.services.*;
-import com.dso34bt.jobportal.utilities.Session;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,11 +9,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 public class JobsController {
@@ -37,9 +39,15 @@ public class JobsController {
     }
 
     @GetMapping("/")
-    public String home(Model model) {
+    public String home(Model model, HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
 
-        model.addAttribute("user", Session.getUser());
+        if (userSessions == null) {
+            model.addAttribute("user", null);
+        }
+        else
+            model.addAttribute("user", userSessions.get(userSessions.size() - 1));
 
         if (!jobPostService.getJobPosts().isEmpty())
             model.addAttribute("jobPosts", jobPostService.getJobPosts());
@@ -50,12 +58,17 @@ public class JobsController {
     }
 
     @GetMapping("logout")
-    public String logout(Model model) {
+    public String logout(Model model, HttpServletRequest request, HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
 
-        if (Session.getUser() != null && Session.getUser().getRole().equalsIgnoreCase("candidate")) {
-            Session.setUser(null);
+        User user = userSessions.get(userSessions.size() - 1);
 
-            model.addAttribute("user", Session.getUser());
+        // destroy the session
+        request.getSession().invalidate();
+
+        if (user != null && user.getRole().equalsIgnoreCase("candidate")) {
+            model.addAttribute("user", null);
 
             if (!jobPostService.getJobPosts().isEmpty())
                 model.addAttribute("jobPosts", jobPostService.getJobPosts());
@@ -65,8 +78,7 @@ public class JobsController {
             return "index";
         }
 
-        if (Session.getUser() != null && !Session.getUser().getRole().equalsIgnoreCase("candidate")) {
-            Session.setUser(null);
+        if (user != null && !user.getRole().equalsIgnoreCase("candidate")) {
             model.addAttribute("user", new User());
             model.addAttribute("success", "You have successfully signed out");
             model.addAttribute("error", "");
@@ -74,7 +86,7 @@ public class JobsController {
             return "login";
         }
 
-        model.addAttribute("user", null);
+        model.addAttribute("user", new User());
 
         if (!jobPostService.getJobPosts().isEmpty())
             model.addAttribute("jobPosts", jobPostService.getJobPosts());
@@ -85,8 +97,15 @@ public class JobsController {
     }
 
     @GetMapping("index")
-    public String index(Model model) {
-        model.addAttribute("user", Session.getUser());
+    public String index(Model model, HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        if (userSessions == null) {
+            model.addAttribute("user", null);
+        }
+        else
+            model.addAttribute("user", userSessions.get(userSessions.size() - 1));
 
         if (!jobPostService.getJobPosts().isEmpty())
             model.addAttribute("jobPosts", jobPostService.getJobPosts());
@@ -97,17 +116,23 @@ public class JobsController {
     }
 
     @GetMapping("thanks")
-    public String thanks(Model model) {
-        if (Session.getUser() == null) {
-            model.addAttribute("user", new User());
+    public String thanks(Model model, HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        User user = new User();
+
+        if (userSessions == null) {
+            model.addAttribute("user", user);
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
+        else
+            user = userSessions.get(userSessions.size() - 1);
 
-        if (Session.getUser().getRole().equalsIgnoreCase("recruiter")) {
-            Session.setUser(null);
+        if (user.getRole().equalsIgnoreCase("recruiter")) {
             model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You are not authorized to access this page!");
@@ -115,22 +140,29 @@ public class JobsController {
             return "login";
         }
 
-        model.addAttribute("user", Session.getUser());
+        model.addAttribute("user", user);
         return "thanks";
     }
 
     @GetMapping("job-post")
-    public String jobPost(Model model, @RequestParam(value = "id", required = false) String id) {
-        if (Session.getUser() == null) {
-            model.addAttribute("user", new User());
+    public String jobPost(Model model, @RequestParam(value = "id", required = false) String id,
+                          HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        User user = new User();
+
+        if (userSessions == null) {
+            model.addAttribute("user", user);
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
+        else
+            user = userSessions.get(userSessions.size() - 1);
 
-        if (!Session.getUser().getRole().equalsIgnoreCase("recruiter")) {
-            Session.setUser(null);
+        if (!user.getRole().equalsIgnoreCase("recruiter")) {
             model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You are not authorized to access this page!");
@@ -149,19 +181,26 @@ public class JobsController {
 
         model.addAttribute("error", error);
         model.addAttribute("success", success);
-        model.addAttribute("user", Session.getUser());
+        model.addAttribute("user", user);
         return "job-post";
     }
 
     @PostMapping("job-post")
-    public String saveJob(@ModelAttribute JobPost jobPost, Model model) {
-        if (Session.getUser() == null) {
-            model.addAttribute("user", new Recruiter());
+    public String saveJob(@ModelAttribute JobPost jobPost, Model model, HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        User user = new User();
+
+        if (userSessions == null) {
+            model.addAttribute("user", user);
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
-            return "recruiter-signup";
+            return "login";
         }
+        else
+            user = userSessions.get(userSessions.size() - 1);
 
         String success = "";
         String error = "";
@@ -171,7 +210,7 @@ public class JobsController {
             LocalDateTime localDateTime = LocalDateTime.parse(jobPost.getTimestamp());
             jobPost.setClosingDate(Timestamp.valueOf(localDateTime));
             jobPost.setCreatedDate(Date.valueOf(LocalDate.now()));
-            jobPost.setRecruiter(recruiterService.getRecruiterByEmail(Session.getUser().getEmail()).get());
+            jobPost.setRecruiter(recruiterService.getRecruiterByEmail(user.getEmail()).get());
 
             try {
                 if (jobPostService.saveJobPost(jobPost))
@@ -186,7 +225,7 @@ public class JobsController {
             jobPost.setId(jobPostService.getLastId() + 1);
             jobPost.setClosingDate(Timestamp.valueOf(localDateTime));
             jobPost.setCreatedDate(Date.valueOf(LocalDate.now()));
-            jobPost.setRecruiter(recruiterService.getRecruiterByEmail(Session.getUser().getEmail()).get());
+            jobPost.setRecruiter(recruiterService.getRecruiterByEmail(user.getEmail()).get());
 
             try {
                 if (jobPostService.saveJobPost(jobPost))
@@ -201,23 +240,30 @@ public class JobsController {
         model.addAttribute("error", error);
         model.addAttribute("success", success);
         model.addAttribute("jobPost", jobPost);
-        model.addAttribute("user", Session.getUser());
+        model.addAttribute("user", user);
 
         return "job-post";
     }
 
     @GetMapping("view-jobs")
-    public String viewJobs(Model model, @RequestParam(value = "id", required = false) String id) {
-        if (Session.getUser() == null) {
-            model.addAttribute("user", new User());
+    public String viewJobs(Model model, @RequestParam(value = "id", required = false) String id,
+                           HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        User user = new User();
+
+        if (userSessions == null) {
+            model.addAttribute("user", user);
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
+        else
+            user = userSessions.get(userSessions.size() - 1);
 
-        if (!Session.getUser().getRole().equalsIgnoreCase("recruiter")) {
-            Session.setUser(null);
+        if (!user.getRole().equalsIgnoreCase("recruiter")) {
             model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You are not authorized to access this page!");
@@ -236,28 +282,34 @@ public class JobsController {
                 error = "Failed to delete " + jobPost.getTitle();
         }
 
-        Recruiter recruiter = recruiterService.getRecruiterByEmail(Session.getUser().getEmail()).get();
+        Recruiter recruiter = recruiterService.getRecruiterByEmail(user.getEmail()).get();
 
         model.addAttribute("error", error);
         model.addAttribute("success", success);
         model.addAttribute("jobs", jobPostService.getByRecruiterId(recruiter.getId()));
-        model.addAttribute("user", Session.getUser());
+        model.addAttribute("user", user);
 
         return "view-jobs";
     }
 
     @GetMapping("job")
-    public String apply(Model model, @RequestParam(value = "id") String id) {
-        if (Session.getUser() == null) {
-            model.addAttribute("user", new User());
+    public String apply(Model model, @RequestParam(value = "id") String id, HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        User user = new User();
+
+        if (userSessions == null) {
+            model.addAttribute("user", user);
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
+        else
+            user = userSessions.get(userSessions.size() - 1);
 
-        if (Session.getUser().getRole().equalsIgnoreCase("recruiter")) {
-            Session.setUser(null);
+        if (user.getRole().equalsIgnoreCase("recruiter")) {
             model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You are not authorized to access this page!");
@@ -265,41 +317,47 @@ public class JobsController {
             return "login";
         }
 
-        CandidateAccount account = candidateAccountService.getUserAccountByEmail(Session.getUser().getEmail()).get();
+        CandidateAccount account = candidateAccountService.getUserAccountByEmail(user.getEmail()).get();
 
         if (!documentService.existsByCandidateEmailAndTitle(account.getEmail(), "CV")) {
             model.addAttribute("show", false);
-            model.addAttribute("user", Session.getUser());
+            model.addAttribute("user", user);
 
             return "apply";
         }
 
         JobPost jobPost = jobPostService.getJobPostByID(Long.parseLong(id)).orElse(new JobPost());
 
-        Candidate candidate = candidateService.getCandidateByEmail(Session.getUser().getEmail()).get();
+        Candidate candidate = candidateService.getCandidateByEmail(user.getEmail()).get();
 
         boolean status = activityService.applied(jobPost.getId(), candidate.getId());
 
         model.addAttribute("show", true);
         model.addAttribute("status", status);
         model.addAttribute("jobPost", jobPost);
-        model.addAttribute("user", Session.getUser());
+        model.addAttribute("user", user);
 
         return "apply";
     }
 
     @GetMapping("apply")
-    public String applying(Model model, @RequestParam(value = "id") String id) {
-        if (Session.getUser() == null) {
-            model.addAttribute("user", new User());
+    public String applying(Model model, @RequestParam(value = "id") String id, HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        User user = new User();
+
+        if (userSessions == null) {
+            model.addAttribute("user", user);
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
+        else
+            user = userSessions.get(userSessions.size() - 1);
 
-        if (Session.getUser().getRole().equalsIgnoreCase("recruiter")) {
-            Session.setUser(null);
+        if (user.getRole().equalsIgnoreCase("recruiter")) {
             model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You are not authorized to access this page!");
@@ -310,19 +368,19 @@ public class JobsController {
         if (id != null) {
             JobPostActivity jobPostActivity = new JobPostActivity();
             jobPostActivity.setJobPost(jobPostService.getJobPostByID(Long.parseLong(id)).get());
-            jobPostActivity.setCandidate(candidateService.getCandidateByEmail(Session.getUser().getEmail()).get());
+            jobPostActivity.setCandidate(candidateService.getCandidateByEmail(user.getEmail()).get());
             jobPostActivity.setDate(Date.valueOf(LocalDate.now()));
             jobPostActivity.setStatus("IN PROGRESS");
 
             if (activityService.saveJobPostActivity(jobPostActivity)) {
                 System.out.println("Applied for: " + jobPostService.getJobPostByID(Long.parseLong(id)).get().getTitle());
 
-                model.addAttribute("user", Session.getUser());
+                model.addAttribute("user", user);
 
                 return "thanks";
             }
 
-            model.addAttribute("user", Session.getUser());
+            model.addAttribute("user", user);
 
             JobPost jobPost = jobPostService.getJobPostByID(Long.parseLong(id)).get();
             model.addAttribute("jobPost", jobPost);
@@ -330,7 +388,7 @@ public class JobsController {
             return "apply";
         }
 
-        model.addAttribute("user", Session.getUser());
+        model.addAttribute("user", user);
         return "index";
     }
 }

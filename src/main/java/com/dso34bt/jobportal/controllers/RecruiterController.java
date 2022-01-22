@@ -3,7 +3,6 @@ package com.dso34bt.jobportal.controllers;
 import com.dso34bt.jobportal.model.Recruiter;
 import com.dso34bt.jobportal.model.User;
 import com.dso34bt.jobportal.services.RecruiterService;
-import com.dso34bt.jobportal.utilities.Session;
 import com.dso34bt.jobportal.utilities.Validate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Controller
 public class RecruiterController {

@@ -2,7 +2,6 @@ package com.dso34bt.jobportal.controllers;
 
 import com.dso34bt.jobportal.model.*;
 import com.dso34bt.jobportal.services.*;
-import com.dso34bt.jobportal.utilities.Session;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,19 +37,26 @@ public class ReviewController {
 
     @GetMapping("review")
     public String review(Model model, @RequestParam(value = "id", required = false) String id,
-                         @RequestParam(value = "action", required = false) String action) {
-        if (Session.getUser() == null) {
-            model.addAttribute("user", new User());
+                         @RequestParam(value = "action", required = false) String action, HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        User user = new User();
+
+        if (userSessions == null) {
+            model.addAttribute("user", user);
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
+        else
+            user = userSessions.get(userSessions.size() - 1);
 
         String success = "";
         String error = "";
 
-        if (Session.getUser().getRole().equalsIgnoreCase("recruiter")) {
+        if (user.getRole().equalsIgnoreCase("recruiter")) {
             if (action != null && action.equalsIgnoreCase("candidate") && id != null) {
                 Candidate candidate = candidateService.findById(Long.parseLong(id)).get();
                 List<Qualifications> qualifications = qualificationService.findByCandidateEmail(candidate.getCandidateAccount().getEmail());
@@ -73,11 +80,11 @@ public class ReviewController {
                 model.addAttribute("missingFiles", missingFiles);
                 model.addAttribute("error", error);
                 model.addAttribute("success", success);
-                model.addAttribute("user", Session.getUser());
+                model.addAttribute("user", user);
 
                 return "review";
             } else {
-                Recruiter recruiter = recruiterService.getRecruiterByEmail(Session.getUser().getEmail()).get();
+                Recruiter recruiter = recruiterService.getRecruiterByEmail(user.getEmail()).get();
 
                 List<JobPostActivity> activityList = jobPostActivityService.findByJobPostRecruiterEmail(recruiter.getEmail());
                 List<Applicant> applicants = new ArrayList<>();
@@ -85,7 +92,7 @@ public class ReviewController {
                 for (JobPostActivity activity : activityList)
                     applicants.add(new Applicant(activity.getCandidate(), activity.getJobPost(), activity));
 
-                model.addAttribute("user", Session.getUser());
+                model.addAttribute("user", user);
                 model.addAttribute("success", "");
                 model.addAttribute("error", "Something went wrong while accessing the page!");
                 model.addAttribute("applicants", applicants);
@@ -97,7 +104,7 @@ public class ReviewController {
 
         model.addAttribute("error", error);
         model.addAttribute("success", success);
-        model.addAttribute("user", Session.getUser());
+        model.addAttribute("user", user);
 
         return "review";
     }

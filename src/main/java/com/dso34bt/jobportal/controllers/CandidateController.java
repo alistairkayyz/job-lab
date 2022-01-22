@@ -2,13 +2,15 @@ package com.dso34bt.jobportal.controllers;
 
 import com.dso34bt.jobportal.model.*;
 import com.dso34bt.jobportal.services.*;
-import com.dso34bt.jobportal.utilities.Session;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Controller
 public class CandidateController {
@@ -24,17 +26,24 @@ public class CandidateController {
     }
 
     @GetMapping("profile")
-    public String profile(Model model, @RequestParam(value = "id", required = false) String id){
-        if (Session.getUser() == null) {
-            model.addAttribute("user", new User());
+    public String profile(Model model, @RequestParam(value = "id", required = false) String id, 
+                          HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        User user = new User();
+
+        if (userSessions == null) {
+            model.addAttribute("user", user);
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
+        else
+            user = userSessions.get(userSessions.size() - 1);
 
-        if (Session.getUser().getRole().equalsIgnoreCase("recruiter")){
-            Session.setUser(null);
+        if (user.getRole().equalsIgnoreCase("recruiter")){
             model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You are not authorized to access this page!");
@@ -43,7 +52,7 @@ public class CandidateController {
         }
         Candidate candidate = new Candidate();
 
-        CandidateAccount account = candidateAccountService.getUserAccountByEmail(Session.getUser().getEmail()).get();
+        CandidateAccount account = candidateAccountService.getUserAccountByEmail(user.getEmail()).get();
 
         String success = "";
         String error = "";
@@ -58,8 +67,8 @@ public class CandidateController {
             }
         }
 
-        if (candidateService.getCandidateByEmail(Session.getUser().getEmail()).isPresent()) {
-            candidate = candidateService.getCandidateByEmail(Session.getUser().getEmail()).get();
+        if (candidateService.getCandidateByEmail(user.getEmail()).isPresent()) {
+            candidate = candidateService.getCandidateByEmail(user.getEmail()).get();
         }
         else
             candidate.setCandidateAccount(account);
@@ -69,24 +78,31 @@ public class CandidateController {
         model.addAttribute("success", success);
         model.addAttribute("error", error);
         model.addAttribute("candidate", candidate);
-        model.addAttribute("user", Session.getUser());
+        model.addAttribute("user", user);
 
         return "profile";
     }
 
     @PostMapping("profile")
-    public String storeProfile(@ModelAttribute Candidate candidate, Model model){
-        if (Session.getUser() == null) {
-            model.addAttribute("user", new User());
+    public String storeProfile(@ModelAttribute Candidate candidate, Model model, HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        User user = new User();
+
+        if (userSessions == null) {
+            model.addAttribute("user", user);
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
+        else
+            user = userSessions.get(userSessions.size() - 1);
         String success = "";
         String error = "";
 
-        candidate.setCandidateAccount(candidateAccountService.getUserAccountByEmail(Session.getUser().getEmail()).get());
+        candidate.setCandidateAccount(candidateAccountService.getUserAccountByEmail(user.getEmail()).get());
 
         candidate.setId(candidateService.getLastId() + 1);
 
@@ -110,7 +126,7 @@ public class CandidateController {
         model.addAttribute("success", success);
         model.addAttribute("error", error);
         model.addAttribute("candidate", candidate);
-        model.addAttribute("user", Session.getUser());
+        model.addAttribute("user", user);
 
         return "profile";
     }

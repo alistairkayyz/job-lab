@@ -1,13 +1,11 @@
 package com.dso34bt.jobportal.controllers;
 
 import com.dso34bt.jobportal.model.CandidateAccount;
-import com.dso34bt.jobportal.model.JobPost;
 import com.dso34bt.jobportal.model.Recruiter;
 import com.dso34bt.jobportal.model.User;
 import com.dso34bt.jobportal.services.CandidateAccountService;
 import com.dso34bt.jobportal.services.JobPostService;
 import com.dso34bt.jobportal.services.RecruiterService;
-import com.dso34bt.jobportal.utilities.Session;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,9 +13,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 public class AccountController {
@@ -33,11 +34,16 @@ public class AccountController {
     }
 
     @GetMapping("login")
-    public String candidateLogin(Model model) {
-        User user = new User();
-        user.setRole("Default");
+    public String candidateLogin(Model model, HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
 
-        model.addAttribute("user", user);
+        if (userSessions == null) {
+            model.addAttribute("user", new User());
+        }
+        else
+            model.addAttribute("user", userSessions.get(userSessions.size() - 1));
+
         model.addAttribute("success", "");
         model.addAttribute("error", "");
 
@@ -45,8 +51,8 @@ public class AccountController {
     }
 
     @PostMapping("login")
-    public String verifyCandidate(@ModelAttribute User user,
-                                  Model model, BindingResult bindingResult) {
+    public String verifyCandidate(@ModelAttribute User user, Model model, BindingResult bindingResult,
+                                  HttpServletRequest request) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("user", user);
@@ -87,8 +93,19 @@ public class AccountController {
                 return "login";
             }
             else {
-                Session.setUser(user);
-                model.addAttribute("user", user);
+                @SuppressWarnings("unchecked")
+                List<User> userSessions = (List<User>) request.getSession().getAttribute("MY_SESSION_MESSAGES");
+
+                if (userSessions == null) {
+                    userSessions = new ArrayList<>();
+                    request.getSession().setAttribute("SESSIONS", userSessions);
+                }
+
+                userSessions.add(user); // add new session
+
+                request.getSession().setAttribute("SESSIONS", userSessions);
+
+                model.addAttribute("user", userSessions.get(userSessions.size() - 1));
                 model.addAttribute("jobPosts", jobPostService.getJobPosts());
                 return "redirect:/index";
             }
@@ -124,8 +141,19 @@ public class AccountController {
                 return "login";
             }
             else {
-                Session.setUser(user);
-                model.addAttribute("user", user);
+                @SuppressWarnings("unchecked")
+                List<User> userSessions = (List<User>) request.getSession().getAttribute("MY_SESSION_MESSAGES");
+
+                if (userSessions == null) {
+                    userSessions = new ArrayList<>();
+                    request.getSession().setAttribute("SESSIONS", userSessions);
+                }
+
+                userSessions.add(user); // add new session
+
+                request.getSession().setAttribute("SESSIONS", userSessions);
+
+                model.addAttribute("user", userSessions.get(userSessions.size() - 1));
                 model.addAttribute("jobs", jobPostService.getJobPosts());
                 return "redirect:/view-jobs";
             }

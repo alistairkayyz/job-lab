@@ -2,7 +2,6 @@ package com.dso34bt.jobportal.controllers;
 
 import com.dso34bt.jobportal.model.*;
 import com.dso34bt.jobportal.services.*;
-import com.dso34bt.jobportal.utilities.Session;
 import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -22,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -56,16 +56,23 @@ public class FilesController {
 
     @GetMapping("files")
     public String files(Model model, @RequestParam(value = "id", required = false) String id,
-                        @RequestParam(value = "action", required = false) String action) {
-        if (Session.getUser() == null) {
-            model.addAttribute("user", new User());
+                        @RequestParam(value = "action", required = false) String action, HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        User user = new User();
+
+        if (userSessions == null) {
+            model.addAttribute("user", user);
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
-        if (Session.getUser().getRole().equalsIgnoreCase("recruiter")){
-            Session.setUser(null);
+        else
+            user = userSessions.get(userSessions.size() - 1);
+
+        if (user.getRole().equalsIgnoreCase("recruiter")){
             model.addAttribute("user", new User());
             model.addAttribute("success", "");
             model.addAttribute("error", "You are not authorized to access this page!");
@@ -73,7 +80,7 @@ public class FilesController {
             return "login";
         }
 
-        CandidateAccount account = candidateAccountService.getUserAccountByEmail(Session.getUser().getEmail()).get();
+        CandidateAccount account = candidateAccountService.getUserAccountByEmail(user.getEmail()).get();
         Candidate candidate = candidateService.getCandidateByEmail(account.getEmail()).orElse(new Candidate());
         List<Document> documents = new ArrayList<>();
 
@@ -131,7 +138,7 @@ public class FilesController {
                                 model.addAttribute("error", "ERROR: File size exceeds 4MB");
                                 model.addAttribute("documents", documentService.getCandidateDocuments(account.getEmail()));
                                 model.addAttribute("upload", new Upload());
-                                model.addAttribute("user", Session.getUser());
+                                model.addAttribute("user", user);
                                 return "files";
                             }
 
@@ -181,22 +188,29 @@ public class FilesController {
         model.addAttribute("error", error.toString());
         model.addAttribute("documents", documents);
         model.addAttribute("upload", new Upload());
-        model.addAttribute("user", Session.getUser());
+        model.addAttribute("user", user);
 
         return "files";
     }
 
     @PostMapping("files")
-    public String storeFiles(@ModelAttribute Upload file, Model model) {
-        if (Session.getUser() == null) {
-            model.addAttribute("user", new CandidateAccount());
+    public String storeFiles(@ModelAttribute Upload file, Model model, HttpSession session) {
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        User user = new User();
+
+        if (userSessions == null) {
+            model.addAttribute("user", user);
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");
 
             return "login";
         }
+        else
+            user = userSessions.get(userSessions.size() - 1);
 
-        CandidateAccount account = candidateAccountService.getUserAccountByEmail(Session.getUser().getEmail()).get();
+        CandidateAccount account = candidateAccountService.getUserAccountByEmail(user.getEmail()).get();
 
         Document document = new Document();
 
@@ -224,7 +238,7 @@ public class FilesController {
                 model.addAttribute("error", "ERROR: Invalid file format!");
                 model.addAttribute("documents", documentService.getCandidateDocuments(account.getEmail()));
                 model.addAttribute("upload", new Upload());
-                model.addAttribute("user", Session.getUser());
+                model.addAttribute("user", user);
                 return "files";
             }
 
@@ -235,7 +249,7 @@ public class FilesController {
                 model.addAttribute("error", "ERROR: File size exceeds 4MB");
                 model.addAttribute("documents", documentService.getCandidateDocuments(account.getEmail()));
                 model.addAttribute("upload", new Upload());
-                model.addAttribute("user", Session.getUser());
+                model.addAttribute("user", user);
                 return "files";
             }
 
@@ -247,7 +261,7 @@ public class FilesController {
             model.addAttribute("error", "ERROR: Failed to upload the file, check the log for more information.");
             model.addAttribute("documents", documentService.getCandidateDocuments(account.getEmail()));
             model.addAttribute("upload", new Upload());
-            model.addAttribute("user", Session.getUser());
+            model.addAttribute("user", user);
             return "files";
         }
 
@@ -262,7 +276,7 @@ public class FilesController {
 
         model.addAttribute("documents", documentService.getCandidateDocuments(account.getEmail()));
         model.addAttribute("upload", new Upload());
-        model.addAttribute("user", Session.getUser());
+        model.addAttribute("user", user);
         return "files";
     }
 
