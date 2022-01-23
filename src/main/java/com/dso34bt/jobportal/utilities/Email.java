@@ -25,9 +25,8 @@ public final class Email {
         try {
 
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress( "no-reply@gmail.com"));
-            message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse(to));
+            message.setFrom(new InternetAddress( "joblab.tut@gmail.com"));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
             message.setSubject(subject);
             message.setText(composedMessage);
 

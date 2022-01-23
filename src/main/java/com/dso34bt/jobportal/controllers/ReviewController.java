@@ -47,13 +47,13 @@ public class ReviewController {
     @GetMapping("review")
     public String review(Model model, @RequestParam(value = "id", required = false) String id,
                          @RequestParam(value = "action", required = false) String action,
-                         @RequestParam(value = "file", required = false) String file,HttpSession session) {
+                         @RequestParam(value = "file", required = false) String file, HttpSession session) {
         @SuppressWarnings("unchecked")
         List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
 
         User user = new User();
 
-        if (userSessions == null) {
+        if (userSessions.isEmpty()) {
             model.addAttribute("user", user);
             model.addAttribute("success", "");
             model.addAttribute("error", "You must login first!");

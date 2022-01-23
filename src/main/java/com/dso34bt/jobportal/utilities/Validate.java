@@ -10,7 +10,6 @@ public final class Validate {
             new URL(url).toURI();
             return true;
         }
-
         // If there was an Exception
         // while creating URL object
         catch (Exception e) {

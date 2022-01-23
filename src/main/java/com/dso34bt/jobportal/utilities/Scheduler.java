@@ -59,7 +59,6 @@ public class Scheduler {
         // get job posts that have closed
         List<JobPost> jobPosts = jobPostService.getJobPostsAfterClosingDate(now);
         for (JobPost jobPost : jobPosts) {
-
             // get all the recruiters
             Recruiter recruiter = recruiterService.getRecruiterById(jobPost.getRecruiter().getId()).get();
 
@@ -90,7 +89,7 @@ public class Scheduler {
                             List<String> list = jobPost.getQualificationList();
                             for (String item : list) {
                                 item = item.toLowerCase(Locale.ROOT);
-                                if (qualificationName.endsWith(item)) {
+                                if (qualificationName.equalsIgnoreCase("na") || qualificationName.endsWith(item)) {
                                     hasQualification = true;
                                     break;
                                 }
@@ -105,7 +104,7 @@ public class Scheduler {
                             List<String> list = jobPost.getRequirementsList();
                             for (String item : list) {
                                 item = item.toLowerCase(Locale.ROOT);
-                                if (item.contains(title) || item.contains(description)) {
+                                if (title.equalsIgnoreCase("na") || item.contains(title) || description.contains(item)) {
                                     hasExperience = true;
                                     break;
                                 }
@@ -134,7 +133,7 @@ public class Scheduler {
                                                     "The competition for this position has been fierce. However, your application was successful " +
                                                     "and we would like to get to know you better. \n" +
                                                     " \n" +
-                                                    "We will be in touch soon, and Congratulation!\n" +
+                                                    "We will be in touch soon, and Congratulations!\n" +
                                                     "\n" +
                                                     "Kind regards,\n" +
                                                     "%s %s\n" +
@@ -154,12 +153,12 @@ public class Scheduler {
 
                                     // email to send to a recruiter
                                     {
-                                        to = candidate.getCandidateAccount().getEmail();
+                                        to = recruiter.getEmail();
                                         subject = "SUCCESSFUL CANDIDATE";
                                         composedMessage = String.format("Hi %s,\n" +
                                                         "\n" +
                                                         "You are receiving this email because %s email: %s cellphone: %s was " +
-                                                        "successful for %s position \n" +
+                                                        "successful for %s position. \n" +
                                                         "\n" +
                                                         "Kind regards,\n" +
                                                         "JobLab", recruiter.getFirstname(), candidate.getFirst_name() +
@@ -183,12 +182,14 @@ public class Scheduler {
 
                                     if (candidateEmailsService.save(candidateEmail))
                                         System.out.println("[CANDIDATE] Saved the email that was sent to " + candidate.getCandidateAccount().getEmail());
-                                } else
+                                }
+                                else
                                     System.out.println("Something went wrong while trying to send an email. Please try again later");
-                            } else
+                            }
+                            else
                                 System.out.println("JobPostActivity was not updated for " + candidate.getFirst_name());
-                        } else {
-
+                        }
+                        else {
                             activity.setStatus("REGRETTED");
                             if (jobPostActivityService.saveJobPostActivity(activity)) {
                                 System.out.println("JobPostActivity was updated and " + candidate.getFirst_name() + "was rejected");
@@ -241,7 +242,7 @@ public class Scheduler {
 
                     activity.setStatus("REGRETTED");
                     if (jobPostActivityService.saveJobPostActivity(activity)) {
-                        System.out.println("JobPostActivity was updated and " + candidate.getFirst_name() + "was rejected");
+                        System.out.println("JobPostActivity was updated and " + candidate.getFirst_name() + " was rejected");
 
                         to = candidate.getCandidateAccount().getEmail();
                         subject = "YOUR JOB APPLICATION UPDATE";
@@ -275,12 +276,12 @@ public class Scheduler {
 
                             if (candidateEmailsService.save(candidateEmail))
                                 System.out.println("Saved the email that was sent");
-                        } else
+                        }
+                        else
                             System.out.println("Something went wrong while trying to send an email. Please try again later");
-                    } else
+                    }
+                    else
                         System.out.println("JobPostActivity was not updated for " + candidate.getFirst_name());
-
-
                 }
             }
         }
