@@ -1,5 +1,6 @@
 package com.dso34bt.jobportal.services;
 
+import com.dso34bt.jobportal.model.RecruiterEmails;
 import com.dso34bt.jobportal.repositories.RecruiterEmailsRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,5 +17,10 @@ public class RecruiterEmailsService {
             return 0;
 
         return Long.parseLong(repository.lastId());
+    }
+
+    public boolean save(RecruiterEmails email) {
+        repository.save(email);
+        return repository.existsById(email.getId());
     }
 }
