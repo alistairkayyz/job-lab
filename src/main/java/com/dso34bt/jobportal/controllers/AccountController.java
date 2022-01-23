@@ -204,6 +204,7 @@ public class AccountController {
         candidate.setId(candidateAccountService.getLastId() + 1);
         candidate.setEmailNotificationActive(true);
         candidate.setRegistrationDate(Timestamp.valueOf(LocalDateTime.now()));
+        candidate.setLastLoginDate(Timestamp.valueOf(LocalDateTime.now()));
 
         if (!candidateAccountService.saveCandidateAccount(candidate)){
             model.addAttribute("candidate", new CandidateAccount());
