@@ -25,6 +25,8 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -107,10 +109,10 @@ public class FilesController {
 
                 if (list.isEmpty()) {
                     try {
-                        generateCV(account);
+                        String filename = "files/"+ candidate.getFirst_name()+ "_" + candidate.getLast_name() +"_cv"+ System.currentTimeMillis() +".pdf";
+                        generateCV(account, filename);
 
                         //Loading an existing document
-                        String filename = "files/"+ candidate.getFirst_name()+ "_" + candidate.getLast_name() +"_cv.pdf";
                         File file = new File(filename);
 
                         FileInputStream input = new FileInputStream(file);
@@ -314,7 +316,7 @@ public class FilesController {
         model.addAttribute("error", error);
     }
 
-    public void generateCV(CandidateAccount account) throws Exception {
+    public void generateCV(CandidateAccount account, String filename) throws Exception {
 
         Optional<Candidate> optional = candidateService.getCandidateByEmail(account.getEmail());
         List<Qualifications> qualifications = qualificationService.findByCandidateEmail(account.getEmail());
@@ -495,7 +497,7 @@ public class FilesController {
         contentStream.endText();
         contentStream.close();
 
-        String filename = "files/"+ candidate.getFirst_name()+ "_" + candidate.getLast_name() +"_cv.pdf";
+
         doc.save(filename);
 
     }

@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.servlet.http.HttpSession;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 public class RecruiterController {
@@ -95,5 +97,97 @@ public class RecruiterController {
         model.addAttribute("error", error);
         model.addAttribute("user", user);
         return "login";
+    }
+
+    @GetMapping("recruiter-settings")
+    public String settings(Model model,
+                           HttpSession session){
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        User user = new User();
+
+        if (userSessions == null) {
+            model.addAttribute("user", user);
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
+
+            return "login";
+        }
+        else
+            user = userSessions.get(userSessions.size() - 1);
+
+        if (!user.getRole().equalsIgnoreCase("recruiter")) {
+            model.addAttribute("user", new User());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You are not authorized to access this page!");
+
+            return "login";
+        }
+
+        String success = "";
+        String error = "";
+
+        model.addAttribute("user", user);
+        model.addAttribute("recruiter", recruiterService.getRecruiterByEmail(user.getEmail()));
+        model.addAttribute("success", success);
+        model.addAttribute("error", error);
+
+        return "recruiter-settings";
+    }
+
+    @PostMapping("recruiter-settings")
+    public String settingsUpdate(@ModelAttribute Recruiter recruiter, Model model,
+                           HttpSession session){
+        @SuppressWarnings("unchecked")
+        List<User> userSessions = (List<User>) session.getAttribute("SESSIONS");
+
+        User user = new User();
+
+        if (userSessions == null) {
+            model.addAttribute("user", user);
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You must login first!");
+
+            return "login";
+        }
+        else
+            user = userSessions.get(userSessions.size() - 1);
+
+        if (!user.getRole().equalsIgnoreCase("recruiter")) {
+            model.addAttribute("user", new User());
+            model.addAttribute("success", "");
+            model.addAttribute("error", "You are not authorized to access this page!");
+
+            return "login";
+        }
+
+        String success = "";
+        String error = "";
+
+        Recruiter info = recruiterService.getRecruiterByEmail(user.getEmail()).get();
+
+        recruiter.setId(info.getId());
+        recruiter.setEmail(info.getEmail());
+        recruiter.setPassword(info.getPassword());
+        recruiter.setRegistrationDate(info.getRegistrationDate());
+        recruiter.setLastLoginDate(info.getLastLoginDate());
+
+        try {
+            if (recruiterService.saveRecruiter(recruiter))
+                success = "Successfully updated your information.";
+            else
+                error = "Failed to updated your information";
+        }
+        catch (Exception e){
+            error = e.getMessage();
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("recruiter", recruiterService.getRecruiterByEmail(user.getEmail()));
+        model.addAttribute("success", success);
+        model.addAttribute("error", error);
+
+        return "recruiter-settings";
     }
 }

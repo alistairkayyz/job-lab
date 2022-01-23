@@ -4,6 +4,7 @@ import com.dso34bt.jobportal.model.JobPost;
 import com.dso34bt.jobportal.repositories.JobPostRepository;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +51,11 @@ public class JobPostService {
 
         return !repository.existsById(id);
     }
+
+    public List<JobPost> getJobPostsAfterClosingDate(Timestamp now){
+        return repository.getJobPostsAfterClosingDate(now);
+    }
+
 
     public long getLastId(){
         if (repository.lastId() == null)

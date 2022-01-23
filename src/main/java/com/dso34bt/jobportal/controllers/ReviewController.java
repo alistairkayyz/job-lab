@@ -124,7 +124,7 @@ public class ReviewController {
                     newRequest.setCandidate(candidate);
                     newRequest.setRecruiter(recruiterService.getRecruiterByEmail(user.getEmail()).get());
 
-                    String to = "aldbeatz@gmail.com";
+                    String to = candidate.getCandidateAccount().getEmail();
                     String subject = "MISSING DOCUMENTS";
                     String composedMessage = String.format("Dear %s \n\nYou are requested to upload '%s' into your portal. " +
                             "Failure to do so, we will not be able to proceed with any of your applications you submitted.\n\n" +

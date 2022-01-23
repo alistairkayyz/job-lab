@@ -61,6 +61,14 @@ public class JobPostActivityService {
         return repository.existsByJobPostIdAndCandidateId(jobPostId, candidateId);
     }
 
+    public List<JobPostActivity> findByJobPostIdAndStatus(long id, String status){
+        return repository.findByJobPostIdAndStatus(id, status);
+    }
+
+    public Optional<JobPostActivity> findByCandidateIdAndJobPostId(long candidateId, long jobPostId){
+        return repository.findByCandidateIdAndJobPostId(candidateId, jobPostId);
+    }
+
     public long getLastId() {
         if (repository.lastId() == null)
             return 0;

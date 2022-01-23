@@ -15,7 +15,7 @@ public class Document implements Serializable {
     private Long id;
 
     @NotNull(message = "File name cannot be null")
-    @Column(unique = true)
+    @Column()
     private String name;
 
     @NotNull(message = "Title name cannot be null")

@@ -37,7 +37,7 @@ CREATE TABLE recruiter
     password                  varchar(100) NOT NULL,
     email_notification_active bool         NOT NULL,
     registration_date         timestamp    NOT NULL,
-    last_login_date           timestamp    NOT NULL
+    last_login_date           timestamp
 );
 
 
