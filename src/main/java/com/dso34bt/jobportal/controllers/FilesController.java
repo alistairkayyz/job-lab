@@ -165,6 +165,7 @@ public class FilesController {
                         }
                     }
                     catch (Exception exception) {
+                        exception.printStackTrace();
                         error = new StringBuilder(exception.getMessage());
                     }
                 }

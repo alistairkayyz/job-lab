@@ -53,7 +53,7 @@ public class Candidate implements Serializable {
     private String race;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "email", referencedColumnName = "email", unique = true)
     private CandidateAccount candidateAccount;
 

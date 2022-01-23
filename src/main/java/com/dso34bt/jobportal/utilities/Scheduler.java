@@ -12,10 +12,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class Scheduler {
@@ -76,8 +73,17 @@ public class Scheduler {
             for (Candidate candidate : candidates){
                 // check if the candidate has any pending requests
                 if (requestsService.findByCandidateIdAndStatus(candidate.getId(), "Requested").isEmpty()){
-                    Document document = documentService.findByCandidateEmailAndTitle(candidate.getCandidateAccount().getEmail(),"CV").get();
-                    File file = new File("/files/" + document.getName());
+                    Document document;
+                    Optional<Document> optionalDocument = documentService.findByCandidateEmailAndTitle(candidate.getCandidateAccount().getEmail(),"CV");
+
+                    if (!optionalDocument.isPresent()) {
+                        System.out.println("************not found + "  + candidate.getCandidateAccount().getEmail());
+                        break;
+                    }
+
+                    document = optionalDocument.get();
+
+                    File file = new File(System.getProperty("user.dir") +  "/files/" + document.getName());
                     try {
                         PDDocument doc = PDDocument.load(file);
 
@@ -96,6 +102,8 @@ public class Scheduler {
                                 break;
                             }
                         }
+
+                        doc.close();
 
                         boolean hasExperience = false;
                         for (String item : jobPost.getRequirementsList()){
